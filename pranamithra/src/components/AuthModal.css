@@ -1,0 +1,99 @@
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+/* CARD */
+.auth-card {
+  background: #ffffff;
+  width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  padding: 24px;
+}
+
+/* HEADER */
+.auth-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.auth-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* BODY */
+.auth-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* FIELD */
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: #475569;
+}
+
+.field input,
+.field textarea {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+}
+
+.field input[type="file"] {
+  padding: 6px;
+}
+
+textarea {
+  resize: none;
+  height: 70px;
+}
+
+/* FORGOT */
+.forgot {
+  font-size: 13px;
+  color: #2563eb;
+  cursor: pointer;
+}
+
+/* FOOTER */
+.auth-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.auth-submit {
+  background: #2563eb;
+  color: white;
+  padding: 12px 40px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
