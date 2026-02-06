@@ -8,14 +8,19 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // Customer
   const [dob, setDob] = useState("");
   const [age, setAge] = useState("");
   const [address, setAddress] = useState("");
   const [gender, setGender] = useState("");
 
+  // Doctor
   const [hospitalName, setHospitalName] = useState("");
   const [specialization, setSpecialization] = useState("");
+  const [doctorImage, setDoctorImage] = useState(null);
+  const [hospitalImage, setHospitalImage] = useState(null);
 
+  /* ================= LOGIN ================= */
   const handleLogin = async () => {
     const res = await fetch("http://localhost:3000/login", {
       method: "POST",
@@ -33,26 +38,50 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
     else alert("Invalid credentials");
   };
 
+  /* ================= REGISTER ================= */
   const handleRegister = async () => {
     if (password !== confirmPassword) {
       alert("Passwords do not match");
       return;
     }
 
-    const url =
-      role === "Customer"
-        ? "http://localhost:3000/customer/register"
-        : "http://localhost:3000/doctor/register";
+    // CUSTOMER REGISTER (JSON)
+    if (role === "Customer") {
+      const res = await fetch("http://localhost:3000/customer/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          phone,
+          email,
+          password,
+          dob,
+          age,
+          address,
+          gender
+        })
+      });
 
-    const payload =
-      role === "Customer"
-        ? { fullName, phone, email, password, dob, age, address, gender }
-        : { fullName, phone, email, password, hospitalName, specialization };
+      const msg = await res.text();
+      alert(msg);
+      if (res.ok) onClose();
+      return;
+    }
 
-    const res = await fetch(url, {
+    // DOCTOR REGISTER (FORM DATA)
+    const formData = new FormData();
+    formData.append("fullName", fullName);
+    formData.append("phone", phone);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("hospitalName", hospitalName);
+    formData.append("specialization", specialization);
+    formData.append("doctorImage", doctorImage);
+    formData.append("hospitalImage", hospitalImage);
+
+    const res = await fetch("http://localhost:3000/doctor/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: formData
     });
 
     const msg = await res.text();
@@ -71,13 +100,13 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
 
         <div className="auth-body">
 
+          {/* LOGIN */}
           {type === "Login" && (
             <>
               <div className="field">
                 <label>Email</label>
                 <input onChange={e => setEmail(e.target.value)} />
               </div>
-
               <div className="field">
                 <label>Password</label>
                 <input type="password" onChange={e => setPassword(e.target.value)} />
@@ -85,6 +114,7 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
             </>
           )}
 
+          {/* CUSTOMER REGISTER */}
           {type === "Register" && role === "Customer" && (
             <>
               <div className="field"><label>Full Name</label><input onChange={e => setFullName(e.target.value)} /></div>
@@ -105,6 +135,7 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
             </>
           )}
 
+          {/* DOCTOR REGISTER */}
           {type === "Register" && role === "Doctor" && (
             <>
               <div className="field"><label>Doctor Name</label><input onChange={e => setFullName(e.target.value)} /></div>
@@ -121,6 +152,17 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
                   <option value="general">General Physician</option>
                 </select>
               </div>
+
+              <div className="field">
+                <label>Doctor Image</label>
+                <input type="file" accept="image/*" onChange={e => setDoctorImage(e.target.files[0])} />
+              </div>
+
+              <div className="field">
+                <label>Hospital Image</label>
+                <input type="file" accept="image/*" onChange={e => setHospitalImage(e.target.files[0])} />
+              </div>
+
               <div className="field"><label>Password</label><input type="password" onChange={e => setPassword(e.target.value)} /></div>
               <div className="field"><label>Confirm Password</label><input type="password" onChange={e => setConfirmPassword(e.target.value)} /></div>
             </>

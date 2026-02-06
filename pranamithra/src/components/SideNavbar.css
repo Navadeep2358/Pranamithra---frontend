@@ -1,33 +1,35 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.45);
   z-index: 2000;
 }
 
+/* SIDEBAR */
 .side-navbar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 280px;
+  width: 300px;
   height: 100%;
-  background: #f1f5ff;
+  background: #f8faff;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  z-index: 3000; /* 🔥 ABOVE overlay */
+  z-index: 3000;
 }
 
-
+/* HEADER */
 .side-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .side-header h3 {
   font-size: 20px;
+  font-weight: 600;
 }
 
 .close-btn {
@@ -37,33 +39,86 @@
   cursor: pointer;
 }
 
-.side-section {
+/* CONTENT */
+.side-content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
+  height: 100%;
+  gap: 16px;
 }
 
-.side-btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  font-size: 15px;
+/* CARD STYLE MENU */
+.menu-card {
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 14px;
   cursor: pointer;
-  background: #e0e7ff;
-  text-align: left;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  transition: all 0.2s ease;
 }
 
-.side-btn.primary {
-  background: #c7d2fe;
+.menu-card h4 {
+  margin: 0;
+  font-size: 16px;
   font-weight: 600;
 }
 
-.support {
+.menu-card p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #555;
+}
+
+.menu-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* PRIMARY */
+.menu-card.primary {
+  background: #e0e7ff;
+}
+
+/* LOGOUT */
+.menu-card.danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* BOTTOM FIX */
+.bottom-card {
   margin-top: auto;
+}
+
+/* THEME CARD */
+.theme-card {
   background: #ffffff;
-  padding: 14px;
-  border-radius: 10px;
-  font-size: 14px;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.theme-card h4 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.theme-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.theme-actions button {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #e0e7ff;
+  font-weight: 500;
+}
+
+.theme-actions button:hover {
+  background: #c7d2fe;
 }

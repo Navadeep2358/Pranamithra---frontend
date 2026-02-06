@@ -12,8 +12,9 @@ export default function App() {
   const [auth, setAuth] = useState(null)
   const [user, setUser] = useState(null)
   const [theme, setTheme] = useState('light')
+  const [loading, setLoading] = useState(true)
 
-  /* 🔥 RESTORE LOGIN ON REFRESH */
+  /* 🔥 RESTORE SESSION ON REFRESH */
   useEffect(() => {
     fetch("http://localhost:3000/me", {
       credentials: "include"
@@ -22,7 +23,13 @@ export default function App() {
       .then(data => {
         if (data) setUser(data)
       })
+      .finally(() => {
+        setLoading(false)
+      })
   }, [])
+
+  /* 🔥 STOP LOGIN FLASH */
+  if (loading) return null
 
   return (
     <div className={`app ${theme}`}>
@@ -33,7 +40,6 @@ export default function App() {
         user={user}
       />
 
-      {/* 🔥 SIDE NAVBAR ONLY WHEN OPEN */}
       {sideOpen && (
         <SideNavbar
           onClose={() => setSideOpen(false)}
@@ -41,15 +47,17 @@ export default function App() {
           setTheme={setTheme}
           onDoctorLogin={() => setAuth({ type: 'Login', role: 'Doctor' })}
           onDoctorRegister={() => setAuth({ type: 'Register', role: 'Doctor' })}
-          onLogout={() => {
-            fetch("http://localhost:3000/logout", { credentials: "include" })
+          onLogout={async () => {
+            await fetch("http://localhost:3000/logout", {
+              method: "POST",
+              credentials: "include"
+            })
             setUser(null)
-            setSideOpen(false)   // 🔥 close overlay
+            setSideOpen(false)
           }}
         />
       )}
 
-      {/* 🔥 AUTH MODAL */}
       {auth && (
         <AuthModal
           type={auth.type}
@@ -58,12 +66,11 @@ export default function App() {
           onSuccess={(data) => {
             setUser(data)
             setAuth(null)
-            setSideOpen(false) // 🔥 remove dim
+            setSideOpen(false)
           }}
         />
       )}
 
-      {/* 🔥 MAIN CONTENT */}
       {user ? <Success user={user} /> : <Home />}
 
       <Footer />

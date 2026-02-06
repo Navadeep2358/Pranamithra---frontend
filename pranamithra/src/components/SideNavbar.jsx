@@ -10,50 +10,79 @@ export default function SideNavbar({
 }) {
   return (
     <>
-      {/* 🔥 OVERLAY ONLY WHEN SIDEBAR IS OPEN */}
+      {/* Overlay */}
       <div className="overlay" onClick={onClose}></div>
 
       <aside className="side-navbar">
+        {/* Header */}
         <div className="side-header">
           <h3>{user ? user.name : "Menu"}</h3>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
-        {!user && (
-          <div className="side-section">
-            <button className="side-btn" onClick={onDoctorLogin}>
-              Doctor Login
-            </button>
-            <button className="side-btn primary" onClick={onDoctorRegister}>
-              Doctor Register
-            </button>
-          </div>
-        )}
+        {/* CONTENT */}
+        <div className="side-content">
 
-        {user && user.role === "customer" && (
-          <div className="side-section">
-            <button className="side-btn">Profile</button>
-            <button className="side-btn">My Bookings</button>
-            <button className="side-btn primary" onClick={onLogout}>
-              Logout
-            </button>
-          </div>
-        )}
+          {/* GUEST */}
+          {!user && (
+            <>
+              <div className="menu-card" onClick={onDoctorLogin}>
+                <h4>Doctor Login</h4>
+              </div>
 
-        {user && user.role === "doctor" && (
-          <div className="side-section">
-            <button className="side-btn">Profile</button>
-            <button className="side-btn">My Appointments</button>
-            <button className="side-btn primary" onClick={onLogout}>
-              Logout
-            </button>
-          </div>
-        )}
+              <div className="menu-card primary" onClick={onDoctorRegister}>
+                <h4>Doctor Register</h4>
+              </div>
 
-        <div className="support">
-          <strong>Theme</strong>
-          <button className="side-btn" onClick={() => setTheme("light")}>Light</button>
-          <button className="side-btn" onClick={() => setTheme("dark")}>Dark</button>
+              {/* THEME */}
+              <div className="theme-card">
+                <h4>Theme</h4>
+                <div className="theme-actions">
+                  <button onClick={() => setTheme("light")}>Light</button>
+                  <button onClick={() => setTheme("dark")}>Dark</button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* CUSTOMER */}
+          {user && user.role === "customer" && (
+            <>
+              <div className="menu-card">
+                <h4>Profile</h4>
+              </div>
+
+              <div className="menu-card">
+                <h4>My Bookings</h4>
+              </div>
+
+              <div className="bottom-card">
+                <div className="menu-card danger" onClick={onLogout}>
+                  <h4>Logout</h4>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* DOCTOR */}
+          {user && user.role === "doctor" && (
+            <>
+              <div className="menu-card">
+                <h4>Profile</h4>
+              </div>
+
+              <div className="menu-card">
+                <h4>My Appointments</h4>
+              </div>
+
+              <div className="bottom-card">
+                <div className="menu-card danger" onClick={onLogout}>
+                  <h4>Logout</h4>
+                </div>
+              </div>
+            </>
+          )}
+
         </div>
       </aside>
     </>
