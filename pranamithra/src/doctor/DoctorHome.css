@@ -1,0 +1,64 @@
+/* ================= COMMON ================= */
+.doctor-status-container {
+  height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: #f8fbff;
+}
+
+.doctor-status-container h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #1e3a8a;
+}
+
+.doctor-status-container p {
+  font-size: 18px;
+  color: #475569;
+  margin: 6px 0;
+}
+
+/* ================= REJECTED ================= */
+.doctor-status-container.rejected h1 {
+  color: #dc2626;
+}
+
+/* ================= VERIFIED ================= */
+.doctor-container {
+  width: 100%;
+}
+
+/* HERO */
+.doctor-hero {
+  height: 50vh;
+  padding-left: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(135deg, #e0e7ff, #f8fafc);
+}
+
+.doctor-hero .welcome-text {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: #4338ca;
+}
+
+.doctor-hero .doctor-text {
+  font-size: 100px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: #1e293b;
+}
+
+/* CONTENT PLACEHOLDER */
+.doctor-content {
+  padding: 40px 80px;
+  color: #475569;
+  font-size: 18px;
+}

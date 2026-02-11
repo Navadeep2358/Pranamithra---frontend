@@ -23,7 +23,7 @@ export default function SideNavbar({
         {/* CONTENT */}
         <div className="side-content">
 
-          {/* GUEST */}
+          {/* ================= GUEST ================= */}
           {!user && (
             <>
               <div className="menu-card" onClick={onDoctorLogin}>
@@ -45,7 +45,7 @@ export default function SideNavbar({
             </>
           )}
 
-          {/* CUSTOMER */}
+          {/* ================= CUSTOMER ================= */}
           {user && user.role === "customer" && (
             <>
               <div className="menu-card">
@@ -64,7 +64,7 @@ export default function SideNavbar({
             </>
           )}
 
-          {/* DOCTOR */}
+          {/* ================= DOCTOR ================= */}
           {user && user.role === "doctor" && (
             <>
               <div className="menu-card">
@@ -73,6 +73,30 @@ export default function SideNavbar({
 
               <div className="menu-card">
                 <h4>My Appointments</h4>
+              </div>
+
+              <div className="bottom-card">
+                <div className="menu-card danger" onClick={onLogout}>
+                  <h4>Logout</h4>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ================= ADMIN (🔥 NEW) ================= */}
+          {user && user.role === "admin" && (
+            <>
+              <div className="menu-card">
+                <h4>My Admins List</h4>
+              </div>
+
+              {/* THEME */}
+              <div className="theme-card">
+                <h4>Theme</h4>
+                <div className="theme-actions">
+                  <button onClick={() => setTheme("light")}>Light</button>
+                  <button onClick={() => setTheme("dark")}>Dark</button>
+                </div>
               </div>
 
               <div className="bottom-card">

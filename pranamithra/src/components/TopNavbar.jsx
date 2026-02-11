@@ -9,6 +9,7 @@ export default function TopNavbar({ onMenu, onLogin, onRegister, user }) {
       </div>
 
       <div className="nav-right">
+        {/* NOT LOGGED IN */}
         {!user && (
           <>
             <button onClick={onLogin}>Login</button>
@@ -16,6 +17,7 @@ export default function TopNavbar({ onMenu, onLogin, onRegister, user }) {
           </>
         )}
 
+        {/* DOCTOR */}
         {user && user.role === "doctor" && (
           <img
             src={`http://localhost:3000/uploads/${user.image}`}
@@ -25,10 +27,15 @@ export default function TopNavbar({ onMenu, onLogin, onRegister, user }) {
           />
         )}
 
+        {/* CUSTOMER & ADMIN */}
         {user && user.role !== "doctor" && (
-          <span className="welcome-text">
-            Welcome, {user.name}
-          </span>
+          <div
+            className="profile-emoji"
+            onClick={onMenu}
+            title={user.name}
+          >
+            👤
+          </div>
         )}
       </div>
     </header>

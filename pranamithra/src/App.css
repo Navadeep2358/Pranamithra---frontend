@@ -4,17 +4,35 @@
   box-sizing: border-box;
 }
 
+/* 🔥 LOCK BROWSER SCROLL COMPLETELY */
+html,
 body {
+  height: 100%;
+  overflow: hidden;              /* ⛔ no body scroll */
+  overscroll-behavior: none;     /* ⛔ no bounce */
   font-family: 'Segoe UI', sans-serif;
 }
 
+/* 🔥 APP CONTROLS SCROLL */
 .app {
-  min-height: 100vh;
+  height: 100vh;
   background: #f8fbff;
-  padding-top: 80px;
+  padding-top: 80px;             /* navbar space */
+  overflow-y: auto;              /* ✅ scroll only here */
+  overflow-x: hidden;
 }
 
+/* DARK MODE */
 .app.dark {
   background: #020617;
   color: #e5e7eb;
+}
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus,
+button:focus-visible {
+  outline: none;
+  box-shadow: none;
 }

@@ -28,15 +28,41 @@
 }
 
 .side-header h3 {
-  font-size: 20px;
+  font-size: 30px;
   font-weight: 600;
+  margin-right: 100px;;
 }
 
 .close-btn {
-  background: none;
+  background: #e5e7eb;          /* subtle neutral bg */
   border: none;
-  font-size: 22px;
+  outline: none;
+  box-shadow: none;
+  font-size: 20px;
   cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 10px;
+  line-height: 1;
+  transition: background 0.2s ease;
+}
+
+/* hover polish */
+.close-btn:hover {
+  background: #dbeafe;
+}
+
+/* remove ALL focus artifacts */
+.close-btn:focus,
+.close-btn:focus-visible,
+.close-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* remove pseudo elements if any browser adds */
+.close-btn::before,
+.close-btn::after {
+  content: none !important;
 }
 
 /* CONTENT */

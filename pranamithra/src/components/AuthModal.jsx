@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./AuthModal.css";
 
 export default function AuthModal({ type, role, onClose, onSuccess }) {
@@ -20,22 +20,27 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
   const [doctorImage, setDoctorImage] = useState(null);
   const [hospitalImage, setHospitalImage] = useState(null);
 
+  /* 🔒 LOCK BODY SCROLL */
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => (document.body.style.overflow = prev);
+  }, []);
+
   /* ================= LOGIN ================= */
   const handleLogin = async () => {
+    const loginRole =
+      email === "admin@gmail.com" ? "admin" : role;
+
     const res = await fetch("http://localhost:3000/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({
-        role: role.toLowerCase(),
-        email,
-        password
-      })
+      body: JSON.stringify({ role: loginRole, email, password })
     });
 
     const data = await res.json();
-    if (res.ok) onSuccess(data);
-    else alert("Invalid credentials");
+    res.ok ? onSuccess(data) : alert("Invalid credentials");
   };
 
   /* ================= REGISTER ================= */
@@ -45,8 +50,8 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
       return;
     }
 
-    // CUSTOMER REGISTER (JSON)
-    if (role === "Customer") {
+    // CUSTOMER
+    if (role === "customer") {
       const res = await fetch("http://localhost:3000/customer/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -62,121 +67,116 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
         })
       });
 
-      const msg = await res.text();
-      alert(msg);
-      if (res.ok) onClose();
+      alert(await res.text());
+      res.ok && onClose();
       return;
     }
 
-    // DOCTOR REGISTER (FORM DATA)
-    const formData = new FormData();
-    formData.append("fullName", fullName);
-    formData.append("phone", phone);
-    formData.append("email", email);
-    formData.append("password", password);
-    formData.append("hospitalName", hospitalName);
-    formData.append("specialization", specialization);
-    formData.append("doctorImage", doctorImage);
-    formData.append("hospitalImage", hospitalImage);
+    // DOCTOR
+    const fd = new FormData();
+    fd.append("fullName", fullName);
+    fd.append("phone", phone);
+    fd.append("email", email);
+    fd.append("password", password);
+    fd.append("hospitalName", hospitalName);
+    fd.append("specialization", specialization);
+    fd.append("doctorImage", doctorImage);
+    fd.append("hospitalImage", hospitalImage);
 
     const res = await fetch("http://localhost:3000/doctor/register", {
       method: "POST",
-      body: formData
+      body: fd
     });
 
-    const msg = await res.text();
-    alert(msg);
-    if (res.ok) onClose();
+    alert(await res.text());
+    res.ok && onClose();
   };
 
   return (
     <div className="auth-overlay">
-      <div className="auth-card">
+      <div className="auth-modal">
 
+        {/* HEADER */}
         <div className="auth-header">
-          <h2>{role} {type}</h2>
-          <button className="close-btn" onClick={onClose}>✕</button>
+          <h2>{type} as {role}</h2>
+          <button className="auth-close" onClick={onClose}>✕</button>
         </div>
 
-        <div className="auth-body">
+        {/* BODY */}
+        <div className="auth-content">
 
           {/* LOGIN */}
           {type === "Login" && (
             <>
-              <div className="field">
-                <label>Email</label>
-                <input onChange={e => setEmail(e.target.value)} />
-              </div>
-              <div className="field">
-                <label>Password</label>
-                <input type="password" onChange={e => setPassword(e.target.value)} />
-              </div>
+              <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
+              <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
             </>
           )}
 
           {/* CUSTOMER REGISTER */}
-          {type === "Register" && role === "Customer" && (
+          {type === "Register" && role === "customer" && (
             <>
-              <div className="field"><label>Full Name</label><input onChange={e => setFullName(e.target.value)} /></div>
-              <div className="field"><label>Phone</label><input onChange={e => setPhone(e.target.value)} /></div>
-              <div className="field"><label>Email</label><input onChange={e => setEmail(e.target.value)} /></div>
-              <div className="field"><label>Date of Birth</label><input type="date" onChange={e => setDob(e.target.value)} /></div>
-              <div className="field"><label>Age</label><input onChange={e => setAge(e.target.value)} /></div>
-              <div className="field"><label>Gender</label>
-                <select onChange={e => setGender(e.target.value)}>
-                  <option value="">Select</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                </select>
+              <input placeholder="Full Name" onChange={e => setFullName(e.target.value)} />
+              <input placeholder="Phone Number" onChange={e => setPhone(e.target.value)} />
+              <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
+
+              <div className="two-col">
+                <input type="date" onChange={e => setDob(e.target.value)} />
+                <input placeholder="Age" onChange={e => setAge(e.target.value)} />
               </div>
-              <div className="field"><label>Address</label><textarea onChange={e => setAddress(e.target.value)} /></div>
-              <div className="field"><label>Password</label><input type="password" onChange={e => setPassword(e.target.value)} /></div>
-              <div className="field"><label>Confirm Password</label><input type="password" onChange={e => setConfirmPassword(e.target.value)} /></div>
+
+              <select onChange={e => setGender(e.target.value)}>
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+
+              <textarea placeholder="Address" onChange={e => setAddress(e.target.value)} />
+
+              <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
+              <input type="password" placeholder="Confirm Password" onChange={e => setConfirmPassword(e.target.value)} />
             </>
           )}
 
           {/* DOCTOR REGISTER */}
-          {type === "Register" && role === "Doctor" && (
+          {type === "Register" && role === "doctor" && (
             <>
-              <div className="field"><label>Doctor Name</label><input onChange={e => setFullName(e.target.value)} /></div>
-              <div className="field"><label>Phone</label><input onChange={e => setPhone(e.target.value)} /></div>
-              <div className="field"><label>Email</label><input onChange={e => setEmail(e.target.value)} /></div>
-              <div className="field"><label>Hospital Name</label><input onChange={e => setHospitalName(e.target.value)} /></div>
-              <div className="field"><label>Specialization</label>
-                <select onChange={e => setSpecialization(e.target.value)}>
-                  <option value="">Select</option>
-                  <option value="cardiology">Cardiology</option>
-                  <option value="ent">ENT</option>
-                  <option value="neurology">Neurology</option>
-                  <option value="dentist">Dentist</option>
-                  <option value="general">General Physician</option>
-                </select>
-              </div>
+              <input placeholder="Doctor Name" onChange={e => setFullName(e.target.value)} />
+              <input placeholder="Phone Number" onChange={e => setPhone(e.target.value)} />
+              <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
+              <input placeholder="Hospital Name" onChange={e => setHospitalName(e.target.value)} />
 
-              <div className="field">
-                <label>Doctor Image</label>
-                <input type="file" accept="image/*" onChange={e => setDoctorImage(e.target.files[0])} />
-              </div>
+              <select onChange={e => setSpecialization(e.target.value)}>
+                <option value="">Select Specialization</option>
+                <option value="cardiology">Cardiology</option>
+                <option value="ent">ENT</option>
+                <option value="neurology">Neurology</option>
+                <option value="dentist">Dentist</option>
+                <option value="general">General Physician</option>
+              </select>
 
-              <div className="field">
-                <label>Hospital Image</label>
-                <input type="file" accept="image/*" onChange={e => setHospitalImage(e.target.files[0])} />
-              </div>
+              <label className="file-label">
+                Doctor Image
+                <input type="file" onChange={e => setDoctorImage(e.target.files[0])} />
+              </label>
 
-              <div className="field"><label>Password</label><input type="password" onChange={e => setPassword(e.target.value)} /></div>
-              <div className="field"><label>Confirm Password</label><input type="password" onChange={e => setConfirmPassword(e.target.value)} /></div>
+              <label className="file-label">
+                Hospital Image
+                <input type="file" onChange={e => setHospitalImage(e.target.files[0])} />
+              </label>
+
+              <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
+              <input type="password" placeholder="Confirm Password" onChange={e => setConfirmPassword(e.target.value)} />
             </>
           )}
 
         </div>
 
-        <div className="auth-footer">
-          <button className="auth-submit" onClick={type === "Login" ? handleLogin : handleRegister}>
-            {type}
-          </button>
-        </div>
-
+        {/* FOOTER */}
+        <button className="auth-btn" onClick={type === "Login" ? handleLogin : handleRegister}>
+          {type}
+        </button>
       </div>
     </div>
-  )
+  );
 }
