@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 import TopNavbar from "./components/TopNavbar";
 import SideNavbar from "./components/SideNavbar";
 import Home from "./components/Home";
-
 import CustomerHome from "./customer/CustomerHome";
 import DoctorHome from "./doctor/DoctorHome";
 import AdminHome from "./admin/AdminHome";
-
 import Footer from "./components/Footer";
 import AuthModal from "./components/AuthModal";
+import Profile from "./components/Profile";
 import "./App.css";
 
 export default function App() {
@@ -17,20 +16,18 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState("light");
   const [loading, setLoading] = useState(true);
+  const [showProfile, setShowProfile] = useState(false);
 
-  /* RESTORE SESSION */
   useEffect(() => {
     fetch("http://localhost:3000/me", {
-      credentials: "include",
+      credentials: "include"
     })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => data && setUser(data))
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => data && setUser(data))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return <div style={{ padding: 40 }}>Loading...</div>;
-  }
+  if (loading) return <div style={{ padding: 40 }}>Loading...</div>;
 
   return (
     <div className={`app ${theme}`}>
@@ -46,6 +43,7 @@ export default function App() {
           onClose={() => setSideOpen(false)}
           user={user}
           setTheme={setTheme}
+          setShowProfile={setShowProfile}
           onDoctorLogin={() => setAuth({ type: "Login", role: "doctor" })}
           onDoctorRegister={() =>
             setAuth({ type: "Register", role: "doctor" })
@@ -53,22 +51,22 @@ export default function App() {
           onLogout={async () => {
             await fetch("http://localhost:3000/logout", {
               method: "POST",
-              credentials: "include",
+              credentials: "include"
             });
             setUser(null);
             setSideOpen(false);
+            setShowProfile(false);
           }}
         />
       )}
 
-      {/* 🔥 AUTH MODAL (FORCED REMOUNT) */}
       {auth && (
         <AuthModal
           key={auth.type + auth.role + Date.now()}
           type={auth.type}
           role={auth.role}
           onClose={() => setAuth(null)}
-          onSuccess={(data) => {
+          onSuccess={data => {
             setUser(data);
             setAuth(null);
             setSideOpen(false);
@@ -76,10 +74,17 @@ export default function App() {
         />
       )}
 
-      {!user && <Home />}
-      {user?.role === "customer" && <CustomerHome user={user} />}
-      {user?.role === "doctor" && <DoctorHome user={user} />}
-      {user?.role === "admin" && <AdminHome />}
+      {!showProfile && !user && <Home />}
+      {!showProfile && user?.role === "customer" && <CustomerHome user={user} />}
+      {!showProfile && user?.role === "doctor" && <DoctorHome user={user} />}
+      {!showProfile && user?.role === "admin" && <AdminHome />}
+
+      {showProfile && (
+        <Profile
+          user={user}
+          goBack={() => setShowProfile(false)}
+        />
+      )}
 
       <Footer />
     </div>

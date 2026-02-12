@@ -6,24 +6,21 @@ export default function SideNavbar({
   onDoctorLogin,
   onDoctorRegister,
   onLogout,
-  setTheme
+  setTheme,
+  setShowProfile
 }) {
   return (
     <>
-      {/* Overlay */}
       <div className="overlay" onClick={onClose}></div>
 
       <aside className="side-navbar">
-        {/* Header */}
         <div className="side-header">
           <h3>{user ? user.name : "Menu"}</h3>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
-        {/* CONTENT */}
         <div className="side-content">
 
-          {/* ================= GUEST ================= */}
           {!user && (
             <>
               <div className="menu-card" onClick={onDoctorLogin}>
@@ -34,7 +31,6 @@ export default function SideNavbar({
                 <h4>Doctor Register</h4>
               </div>
 
-              {/* THEME */}
               <div className="theme-card">
                 <h4>Theme</h4>
                 <div className="theme-actions">
@@ -45,10 +41,13 @@ export default function SideNavbar({
             </>
           )}
 
-          {/* ================= CUSTOMER ================= */}
           {user && user.role === "customer" && (
             <>
-              <div className="menu-card">
+              <div className="menu-card"
+                onClick={() => {
+                  setShowProfile(true)
+                  onClose()
+                }}>
                 <h4>Profile</h4>
               </div>
 
@@ -64,10 +63,13 @@ export default function SideNavbar({
             </>
           )}
 
-          {/* ================= DOCTOR ================= */}
           {user && user.role === "doctor" && (
             <>
-              <div className="menu-card">
+              <div className="menu-card"
+                onClick={() => {
+                  setShowProfile(true)
+                  onClose()
+                }}>
                 <h4>Profile</h4>
               </div>
 
@@ -83,14 +85,12 @@ export default function SideNavbar({
             </>
           )}
 
-          {/* ================= ADMIN (🔥 NEW) ================= */}
           {user && user.role === "admin" && (
             <>
               <div className="menu-card">
                 <h4>My Admins List</h4>
               </div>
 
-              {/* THEME */}
               <div className="theme-card">
                 <h4>Theme</h4>
                 <div className="theme-actions">
