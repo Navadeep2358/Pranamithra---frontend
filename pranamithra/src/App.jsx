@@ -5,7 +5,6 @@ import Home from "./components/Home";
 import CustomerHome from "./customer/CustomerHome";
 import DoctorHome from "./doctor/DoctorHome";
 import AdminHome from "./admin/AdminHome";
-import Footer from "./components/Footer";
 import AuthModal from "./components/AuthModal";
 import Profile from "./components/Profile";
 import "./App.css";
@@ -85,8 +84,6 @@ export default function App() {
           goBack={() => setShowProfile(false)}
         />
       )}
-
-      <Footer />
     </div>
   );
 }

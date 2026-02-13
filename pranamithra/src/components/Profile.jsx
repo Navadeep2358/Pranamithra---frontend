@@ -5,6 +5,14 @@ export default function Profile({ goBack }) {
   const [data, setData] = useState({});
   const [editMode, setEditMode] = useState(false);
 
+  // 🔐 Password states
+  const [showPasswordBox, setShowPasswordBox] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
+  });
+
   useEffect(() => {
     fetch("http://localhost:3000/profile", {
       credentials: "include"
@@ -13,38 +21,93 @@ export default function Profile({ goBack }) {
       .then(data => setData(data));
   }, []);
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
   };
 
-  const handleFileChange = e => {
+  const handleFileChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.files[0] });
   };
 
+  const handlePasswordChange = (e) => {
+    setPasswordData({
+      ...passwordData,
+      [e.target.name]: e.target.value
+    });
+  };
+
   const saveProfile = async () => {
-    const formData = new FormData();
 
-    Object.keys(data).forEach(key => {
-      formData.append(key, data[key]);
-    });
+    if (data.role === "customer") {
 
-    await fetch("http://localhost:3000/profile", {
-      method: "PUT",
-      credentials: "include",
-      body: formData
-    });
+      await fetch("http://localhost:3000/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(data)
+      });
 
-    alert("Profile Updated");
+    } else if (data.role === "doctor") {
+
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        formData.append(key, data[key]);
+      });
+
+      await fetch("http://localhost:3000/profile", {
+        method: "PUT",
+        credentials: "include",
+        body: formData
+      });
+    }
+
+    alert("Profile Updated Successfully");
     setEditMode(false);
-    window.location.reload();
+
+    fetch("http://localhost:3000/profile", {
+      credentials: "include"
+    })
+      .then(res => res.json())
+      .then(updated => setData(updated));
+  };
+
+  const changePassword = async () => {
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert("New passwords do not match");
+      return;
+    }
+
+    const res = await fetch("http://localhost:3000/change-password", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      })
+    });
+
+    const message = await res.text();
+    alert(message);
+
+    if (res.ok) {
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: ""
+      });
+      setShowPasswordBox(false);
+    }
   };
 
   return (
     <div className="profile-wrapper">
 
-      {/* LEFT BLUE BOX */}
+      {/* LEFT PANEL */}
       <div className="profile-left">
-        {data.role === "doctor" && data.doctor_image ? (
+
+        {data.doctor_image ? (
           <img
             src={`http://localhost:3000/uploads/${data.doctor_image}`}
             alt="Doctor"
@@ -73,13 +136,21 @@ export default function Profile({ goBack }) {
             )}
           </>
         )}
+
       </div>
 
-      {/* RIGHT SIDE */}
+      {/* RIGHT PANEL */}
       <div className="profile-right">
+
         <div className="profile-header">
           <h2>Personal Information</h2>
-          <button onClick={() => setEditMode(!editMode)}>
+
+          <button
+            onClick={() => {
+              if (editMode) saveProfile();
+              else setEditMode(true);
+            }}
+          >
             {editMode ? "Save" : "Update"}
           </button>
         </div>
@@ -111,47 +182,50 @@ export default function Profile({ goBack }) {
             />
           </div>
 
-          <div>
-            <label>Age</label>
-            <input
-              name="age"
-              value={data.age || ""}
-              disabled={!editMode}
-              onChange={handleChange}
-            />
-          </div>
+          {data.role === "customer" && (
+            <>
+              <div>
+                <label>Age</label>
+                <input
+                  name="age"
+                  value={data.age || ""}
+                  disabled={!editMode}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <div>
-            <label>DOB</label>
-            <input
-              name="dob"
-              value={data.dob?.split("T")[0] || ""}
-              disabled={!editMode}
-              onChange={handleChange}
-            />
-          </div>
+              <div>
+                <label>DOB</label>
+                <input
+                  name="dob"
+                  value={data.dob?.split("T")[0] || ""}
+                  disabled={!editMode}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <div>
-            <label>Gender</label>
-            <input
-              name="gender"
-              value={data.gender || ""}
-              disabled={!editMode}
-              onChange={handleChange}
-            />
-          </div>
+              <div>
+                <label>Gender</label>
+                <input
+                  name="gender"
+                  value={data.gender || ""}
+                  disabled={!editMode}
+                  onChange={handleChange}
+                />
+              </div>
 
-          <div className="full-width">
-            <label>Address</label>
-            <input
-              name="address"
-              value={data.address || ""}
-              disabled={!editMode}
-              onChange={handleChange}
-            />
-          </div>
+              <div className="full-width">
+                <label>Address</label>
+                <input
+                  name="address"
+                  value={data.address || ""}
+                  disabled={!editMode}
+                  onChange={handleChange}
+                />
+              </div>
+            </>
+          )}
 
-          {/* DOCTOR EXTRA FIELDS */}
           {data.role === "doctor" && (
             <>
               <div>
@@ -200,18 +274,59 @@ export default function Profile({ goBack }) {
 
         </div>
 
-        {editMode && (
-          <button
-            className="save-btn"
-            onClick={saveProfile}
-          >
-            Save Changes
-          </button>
+        {/* 🔐 PASSWORD SECTION */}
+        <button
+          className="password-btn"
+          onClick={() => setShowPasswordBox(!showPasswordBox)}
+        >
+          Change Password
+        </button>
+
+        {showPasswordBox && (
+          <form className="password-box" autoComplete="off">
+
+            {/* Hidden fields to prevent Chrome autofill */}
+            <input type="text" name="fakeuser" style={{ display: "none" }} />
+            <input type="password" name="fakepass" style={{ display: "none" }} />
+
+            <input
+              type="password"
+              name="currentPassword"
+              placeholder="Current Password"
+              autoComplete="new-password"
+              value={passwordData.currentPassword}
+              onChange={handlePasswordChange}
+            />
+
+            <input
+              type="password"
+              name="newPassword"
+              placeholder="New Password"
+              autoComplete="new-password"
+              value={passwordData.newPassword}
+              onChange={handlePasswordChange}
+            />
+
+            <input
+              type="password"
+              name="confirmPassword"
+              placeholder="Confirm New Password"
+              autoComplete="new-password"
+              value={passwordData.confirmPassword}
+              onChange={handlePasswordChange}
+            />
+
+            <button type="button" onClick={changePassword}>
+              Update Password
+            </button>
+
+          </form>
         )}
 
         <button className="back-btn" onClick={goBack}>
           Back
         </button>
+
       </div>
     </div>
   );

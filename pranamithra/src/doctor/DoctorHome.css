@@ -1,64 +1,226 @@
 /* ================= COMMON ================= */
+.doctor-container {
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+/* ================= HERO ================= */
+.doctor-hero {
+  height: 50vh;
+  display: flex;
+  align-items: center;
+  padding-left: 80px;
+  background: linear-gradient(135deg, #e0e7ff, #f8fafc);
+}
+
+.welcome-text {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: #4338ca;
+}
+
+.doctor-name {
+  font-size: 110px;
+  font-weight: 900;
+  letter-spacing: 8px;
+  color: #1e3a8a;
+}
+
+/* ================= SERVICES ================= */
+.services-heading {
+  margin: 40px 60px 20px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+  margin: 0 60px 60px;
+}
+
+.service-box {
+  height: 130px;
+  background: white;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  font-weight: 600;
+  border-left: 6px solid #6366f1;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(99,102,241,0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-box:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(99,102,241,0.35);
+}
+
+/* ================= INSPIRE SECTION ================= */
+.inspire-section {
+  padding: 60px;
+  text-align: center;
+}
+
+.inspire-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1e3a8a;
+  margin-bottom: 40px;
+}
+
+.inspire-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.inspire-card {
+  background: white;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.inspire-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 25px 50px rgba(99,102,241,0.25);
+}
+
+.inspire-card img {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 20px;
+}
+
+.inspire-card p {
+  font-size: 15px;
+  color: #475569;
+}
+
+/* ================= FOOTER ================= */
+.doctor-footer {
+  background: #eef2ff;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  padding: 60px;
+}
+
+.footer-col h2 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #2563eb;
+}
+
+.footer-col h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.footer-col p {
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: #475569;
+}
+
+/* ================= FEEDBACK ================= */
+.feedback-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  margin-top: 10px;
+  resize: none;
+}
+
+.feedback-btn {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feedback-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99,102,241,0.4);
+}
+
+/* ================= STATUS SCREENS ================= */
 .doctor-status-container {
   height: calc(100vh - 80px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  text-align: center;
   background: #f8fbff;
 }
 
-.doctor-status-container h1 {
-  font-size: 32px;
-  font-weight: 700;
-  margin-bottom: 16px;
-  color: #1e3a8a;
-}
-
-.doctor-status-container p {
-  font-size: 18px;
-  color: #475569;
-  margin: 6px 0;
-}
-
-/* ================= REJECTED ================= */
 .doctor-status-container.rejected h1 {
   color: #dc2626;
 }
 
-/* ================= VERIFIED ================= */
-.doctor-container {
-  width: 100%;
+/* ================= VIDEO SECTION ================= */
+
+.video-section {
+  padding: 80px 0;
+  text-align: center;
 }
 
-/* HERO */
-.doctor-hero {
-  height: 50vh;
-  padding-left: 80px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background: linear-gradient(135deg, #e0e7ff, #f8fafc);
-}
-
-.doctor-hero .welcome-text {
-  font-size: 40px;
+.section-title {
+  font-size: 32px;
   font-weight: 800;
-  letter-spacing: 4px;
-  color: #4338ca;
+  color: #1e3a8a;
+  margin-bottom: 60px;
 }
 
-.doctor-hero .doctor-text {
-  font-size: 100px;
-  font-weight: 900;
-  letter-spacing: 6px;
-  color: #1e293b;
+/* center container */
+.video-row {
+  width: 85%;
+  margin: 0 auto 80px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
 }
 
-/* CONTENT PLACEHOLDER */
-.doctor-content {
-  padding: 40px 80px;
+.video-row.reverse {
+  flex-direction: row-reverse;
+}
+
+.video-row iframe {
+  width: 550px;
+  height: 320px;
+  border-radius: 20px;
+  box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+}
+
+.video-text {
+  width: 500px;
+  text-align: left;
+}
+
+.video-text h3 {
+  font-size: 26px;
+  color: #2563eb;
+  margin-bottom: 20px;
+}
+
+.video-text p {
+  font-size: 16px;
   color: #475569;
-  font-size: 18px;
+  line-height: 1.7;
 }
