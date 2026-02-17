@@ -153,6 +153,18 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
                 <option value="neurology">Neurology</option>
                 <option value="dentist">Dentist</option>
                 <option value="general">General Physician</option>
+                <option value="Gastroenterologists">Gastroenterologists</option>
+                <option value="Nephrologists">Nephrologists</option>
+                <option value="gynecologists">gynecologists</option>
+                <option value="Ophthalmologists">Ophthalmologists</option>
+                <option value="Dermatologists">Dermatologists</option>
+                <option value="Anesthesiologists">Anesthesiologists</option>
+                <option value="Endocrinologists">Endocrinologists</option>
+                <option value="Hematologists">Hematologists</option>
+                <option value="Orthopedic">Orthopedic</option>
+                <option value="Psychiatrists">Psychiatrists</option>
+                <option value="Radiologists">Radiologists</option>
+
               </select>
 
               <label className="file-label">

@@ -4,6 +4,7 @@ import SideNavbar from "./components/SideNavbar";
 import Home from "./components/Home";
 import CustomerHome from "./customer/CustomerHome";
 import DoctorHome from "./doctor/DoctorHome";
+import ScheduleDay from "./doctor/ScheduleDay";
 import AdminHome from "./admin/AdminHome";
 import AuthModal from "./components/AuthModal";
 import Profile from "./components/Profile";
@@ -16,6 +17,7 @@ export default function App() {
   const [theme, setTheme] = useState("light");
   const [loading, setLoading] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
+  const [doctorPage, setDoctorPage] = useState("home"); // NEW
 
   useEffect(() => {
     fetch("http://localhost:3000/me", {
@@ -30,6 +32,7 @@ export default function App() {
 
   return (
     <div className={`app ${theme}`}>
+
       <TopNavbar
         onMenu={() => setSideOpen(true)}
         onLogin={() => setAuth({ type: "Login", role: "customer" })}
@@ -73,10 +76,29 @@ export default function App() {
         />
       )}
 
+      {/* ================= MAIN RENDERING ================= */}
+
       {!showProfile && !user && <Home />}
-      {!showProfile && user?.role === "customer" && <CustomerHome user={user} />}
-      {!showProfile && user?.role === "doctor" && <DoctorHome user={user} />}
-      {!showProfile && user?.role === "admin" && <AdminHome />}
+
+      {!showProfile && user?.role === "customer" &&
+        <CustomerHome user={user} />}
+
+      {!showProfile && user?.role === "doctor" && doctorPage === "home" &&
+        <DoctorHome
+          user={user}
+          openSchedule={() => setDoctorPage("schedule")}
+        />
+      }
+
+      {!showProfile && user?.role === "doctor" && doctorPage === "schedule" &&
+        <ScheduleDay
+          user={user}
+          goBack={() => setDoctorPage("home")}
+        />
+      }
+
+      {!showProfile && user?.role === "admin" &&
+        <AdminHome />}
 
       {showProfile && (
         <Profile
@@ -84,6 +106,7 @@ export default function App() {
           goBack={() => setShowProfile(false)}
         />
       )}
+
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import "./DoctorHome.css";
 
-export default function DoctorHome({ user }) {
+export default function DoctorHome({ user, openSchedule }) {
   if (!user || user.role !== "doctor") return null;
 
   /* ================= PENDING ================= */
@@ -43,8 +43,16 @@ export default function DoctorHome({ user }) {
       <h3 className="services-heading">Services</h3>
 
       <div className="services-grid">
-        <div className="service-box">My Appointments</div>
-        <div className="service-box">Schedule the Day</div>
+        <div className="service-box">
+          My Appointments
+        </div>
+
+        <div 
+          className="service-box"
+          onClick={openSchedule}
+        >
+          Schedule the Day
+        </div>
       </div>
 
       {/* ================= DOCTOR INSPIRATION SECTION ================= */}
@@ -82,7 +90,6 @@ export default function DoctorHome({ user }) {
       <div className="video-section">
         <h2 className="section-title">Medical Awareness & Education</h2>
 
-        {/* VIDEO 1 */}
         <div className="video-row">
           <iframe
             src="https://www.youtube.com/embed/S4wWClQhZaA"
@@ -100,7 +107,6 @@ export default function DoctorHome({ user }) {
           </div>
         </div>
 
-        {/* VIDEO 2 */}
         <div className="video-row reverse">
           <iframe
             src="https://www.youtube.com/embed/5t6Yr4eZ9wY"
