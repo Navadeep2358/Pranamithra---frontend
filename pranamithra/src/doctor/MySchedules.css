@@ -1,0 +1,79 @@
+.myschedule-page {
+  padding: 60px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #1e293b;
+}
+
+.schedule-display-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: 0.4s ease;
+}
+
+.schedule-display-card:hover {
+  transform: translateY(-5px);
+}
+
+.schedule-time h3,
+.schedule-slots h3 {
+  margin-bottom: 10px;
+  color: #334155;
+}
+
+.schedule-time p {
+  font-size: 18px;
+  font-weight: 600;
+  color: #6366f1;
+  margin-bottom: 30px;
+}
+
+.slots-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.slot-card {
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+  transition: all 0.3s ease;
+}
+
+.slot-card:hover {
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+}
+
+.back-btn {
+  margin-bottom: 25px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+  transition: 0.3s;
+}
+
+.back-btn:hover {
+  transform: translateY(-2px);
+}

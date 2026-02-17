@@ -2,25 +2,38 @@ import { useState, useEffect } from "react";
 import "./AuthModal.css";
 
 export default function AuthModal({ type, role, onClose, onSuccess }) {
+
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Customer
   const [dob, setDob] = useState("");
   const [age, setAge] = useState("");
   const [address, setAddress] = useState("");
   const [gender, setGender] = useState("");
 
-  // Doctor
   const [hospitalName, setHospitalName] = useState("");
   const [specialization, setSpecialization] = useState("");
+  const [experience, setExperience] = useState("");   // 🔥 NEW
   const [doctorImage, setDoctorImage] = useState(null);
   const [hospitalImage, setHospitalImage] = useState(null);
 
-  /* 🔒 LOCK BODY SCROLL */
+  const [popup, setPopup] = useState(null);
+  const [fadeOut, setFadeOut] = useState(false);
+
+  const showPopup = (message, type) => {
+    setPopup({ message, type });
+    setFadeOut(false);
+
+    setTimeout(() => setFadeOut(true), 4200);
+    setTimeout(() => {
+      setPopup(null);
+      setFadeOut(false);
+    }, 5000);
+  };
+
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -29,6 +42,7 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
 
   /* ================= LOGIN ================= */
   const handleLogin = async () => {
+
     const loginRole =
       email === "admin@gmail.com" ? "admin" : role;
 
@@ -39,19 +53,26 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
       body: JSON.stringify({ role: loginRole, email, password })
     });
 
-    const data = await res.json();
-    res.ok ? onSuccess(data) : alert("Invalid credentials");
+    if (res.ok) {
+      const data = await res.json();
+      showPopup("Login Successful", "success");
+      setTimeout(() => onSuccess(data), 1200);
+    } else {
+      showPopup("Invalid Credentials", "error");
+    }
   };
 
   /* ================= REGISTER ================= */
   const handleRegister = async () => {
+
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      showPopup("Passwords do not match", "error");
       return;
     }
 
-    // CUSTOMER
+    // CUSTOMER REGISTER
     if (role === "customer") {
+
       const res = await fetch("http://localhost:3000/customer/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -67,12 +88,17 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
         })
       });
 
-      alert(await res.text());
-      res.ok && onClose();
+      if (res.ok) {
+        showPopup("Your Registration is Successful", "success");
+        setTimeout(() => onClose(), 1500);
+      } else {
+        showPopup("Registration Failed", "error");
+      }
+
       return;
     }
 
-    // DOCTOR
+    // DOCTOR REGISTER
     const fd = new FormData();
     fd.append("fullName", fullName);
     fd.append("phone", phone);
@@ -80,6 +106,7 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
     fd.append("password", password);
     fd.append("hospitalName", hospitalName);
     fd.append("specialization", specialization);
+    fd.append("experience", experience);   // 🔥 ADDED
     fd.append("doctorImage", doctorImage);
     fd.append("hospitalImage", hospitalImage);
 
@@ -88,24 +115,46 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
       body: fd
     });
 
-    alert(await res.text());
-    res.ok && onClose();
+    if (res.ok) {
+      showPopup("Your Registration is Successful", "success");
+      setTimeout(() => onClose(), 1500);
+    } else {
+      showPopup("Registration Failed", "error");
+    }
   };
 
   return (
     <div className="auth-overlay">
       <div className="auth-modal">
 
-        {/* HEADER */}
+        {popup && (
+          <div className={`auth-popup ${popup.type} ${fadeOut ? "fade-out" : ""}`}>
+            <div className="popup-icon">
+              {popup.type === "success" && "✓"}
+              {popup.type === "error" && "✕"}
+              {popup.type === "cancel" && "⚠"}
+            </div>
+            <div className="popup-text">
+              {popup.message}
+            </div>
+          </div>
+        )}
+
         <div className="auth-header">
           <h2>{type} as {role}</h2>
-          <button className="auth-close" onClick={onClose}>✕</button>
+          <button
+            className="auth-close"
+            onClick={() => {
+              showPopup("Action Cancelled", "cancel");
+              setTimeout(() => onClose(), 800);
+            }}
+          >
+            ✕
+          </button>
         </div>
 
-        {/* BODY */}
         <div className="auth-content">
 
-          {/* LOGIN */}
           {type === "Login" && (
             <>
               <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
@@ -113,7 +162,6 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
             </>
           )}
 
-          {/* CUSTOMER REGISTER */}
           {type === "Register" && role === "customer" && (
             <>
               <input placeholder="Full Name" onChange={e => setFullName(e.target.value)} />
@@ -138,7 +186,6 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
             </>
           )}
 
-          {/* DOCTOR REGISTER */}
           {type === "Register" && role === "doctor" && (
             <>
               <input placeholder="Doctor Name" onChange={e => setFullName(e.target.value)} />
@@ -153,19 +200,30 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
                 <option value="neurology">Neurology</option>
                 <option value="dentist">Dentist</option>
                 <option value="general">General Physician</option>
-                <option value="Gastroenterologists">Gastroenterologists</option>
-                <option value="Nephrologists">Nephrologists</option>
-                <option value="gynecologists">gynecologists</option>
-                <option value="Ophthalmologists">Ophthalmologists</option>
-                <option value="Dermatologists">Dermatologists</option>
-                <option value="Anesthesiologists">Anesthesiologists</option>
-                <option value="Endocrinologists">Endocrinologists</option>
-                <option value="Hematologists">Hematologists</option>
-                <option value="Orthopedic">Orthopedic</option>
-                <option value="Psychiatrists">Psychiatrists</option>
-                <option value="Radiologists">Radiologists</option>
-
+                <option value="orthopedics">Orthopedics</option>
+  <option value="dermatology">Dermatology</option>
+  <option value="pediatrics">Pediatrics</option>
+  <option value="gynecology">Gynecology</option>
+  <option value="psychiatry">Psychiatry</option>
+  <option value="urology">Urology</option>
+  <option value="oncology">Oncology</option>
+  <option value="gastroenterology">Gastroenterology</option>
+  <option value="nephrology">Nephrology</option>
+  <option value="pulmonology">Pulmonology</option>
+  <option value="radiology">Radiology</option>
+  <option value="anesthesiology">Anesthesiology</option>
+  <option value="endocrinology">Endocrinology</option>
+  <option value="ophthalmology">Ophthalmology</option>
+  <option value="plastic_surgery">Plastic Surgery</option>
               </select>
+
+              {/* 🔥 EXPERIENCE FIELD */}
+              <input
+                type="number"
+                placeholder="Years of Experience"
+                min="0"
+                onChange={e => setExperience(e.target.value)}
+              />
 
               <label className="file-label">
                 Doctor Image
@@ -184,10 +242,10 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
 
         </div>
 
-        {/* FOOTER */}
         <button className="auth-btn" onClick={type === "Login" ? handleLogin : handleRegister}>
           {type}
         </button>
+
       </div>
     </div>
   );

@@ -1,8 +1,7 @@
-/* OVERLAY */
 .auth-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0,0,0,0.65);
   backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
@@ -10,125 +9,137 @@
   z-index: 9999;
 }
 
-/* MODAL */
 .auth-modal {
-  width: 480px;
+  position: relative;
+  width: 500px;
   max-height: 90vh;
   background: #ffffff;
-  border-radius: 18px;
-  padding: 26px;
+  border-radius: 22px;
+  padding: 30px;
   display: flex;
   flex-direction: column;
-  animation: popup 0.35s ease;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+  animation: popupScale 0.35s ease;
+  box-shadow: 0 35px 90px rgba(0,0,0,0.4);
 }
 
-/* HEADER */
 .auth-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .auth-header h2 {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
 }
 
-/* CLOSE BUTTON – FIXED */
 .auth-close {
   background: #e5e7eb;
   border: none;
-  outline: none;
-  box-shadow: none;
   font-size: 20px;
   cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 10px;
-  line-height: 1;
-  transition: background 0.2s ease;
+  padding: 8px 14px;
+  border-radius: 12px;
 }
 
-.auth-close:hover {
-  background: #dbeafe;
-}
-
-.auth-close:focus,
-.auth-close:active {
-  outline: none;
-  box-shadow: none;
-}
-
-/* CONTENT */
 .auth-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   overflow-y: auto;
-  scrollbar-gutter: stable;   /* 🔥 prevents layout jump */
 }
 
-/* INPUTS */
 .auth-content input,
 .auth-content textarea,
 .auth-content select {
-  padding: 11px;
-  border-radius: 10px;
+  padding: 12px;
+  border-radius: 12px;
   border: 1px solid #cbd5e1;
   font-size: 14px;
 }
 
-/* TEXTAREA */
-textarea {
-  resize: none;
-  height: 70px;
-}
-
-/* TWO COLUMN */
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 
-/* FILE INPUT */
-.file-label {
-  font-size: 13px;
-  color: #475569;
+textarea {
+  resize: none;
+  height: 80px;
 }
 
-.file-label input {
-  margin-top: 6px;
-}
-
-/* BUTTON */
 .auth-btn {
-  margin-top: 18px;
-  padding: 12px;
-  border-radius: 14px;
-  background: #2563eb;
-  color: #ffffff;
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
   border: none;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.auth-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(37,99,235,0.35);
+/* ===== MEDIUM SIZE TOP RIGHT POPUP ===== */
+
+.auth-popup {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  min-width: 240px;      /* reduced */
+  max-width: 280px;      /* reduced */
+  padding: 14px 18px;    /* reduced padding */
+  border-radius: 14px;   /* slightly smaller */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  font-size: 14px;       /* slightly smaller text */
+  font-weight: 600;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+  animation: slideIn 0.35s ease;
+  z-index: 20000;
 }
 
-/* ANIMATION */
-@keyframes popup {
-  from {
-    transform: scale(0.85);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+.auth-popup.success {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+}
+
+.auth-popup.error {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+
+.auth-popup.cancel {
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+}
+
+.popup-icon {
+  font-size: 18px;       /* smaller icon */
+  background: rgba(255,255,255,0.25);
+  padding: 6px 10px;     /* smaller */
+  border-radius: 10px;
+}
+
+.popup-text {
+  flex: 1;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(70px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.fade-out {
+  animation: fadeOut 0.8s forwards;
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateX(70px); }
+}
+
+@keyframes popupScale {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }

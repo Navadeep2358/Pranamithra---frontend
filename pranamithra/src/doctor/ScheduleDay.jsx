@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./ScheduleDay.css";
 
 export default function ScheduleDay({ user, goBack }) {
@@ -9,11 +9,40 @@ export default function ScheduleDay({ user, goBack }) {
   const [slots, setSlots] = useState([]);
   const [selectedSlots, setSelectedSlots] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+
+  /* ================= LOAD SAVED SCHEDULE ================= */
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:3000/doctor/schedule/${user.id}`,
+          { credentials: "include" }
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+
+          setLoginTime(data.login_time);
+          setLogoutTime(data.logout_time);
+          setDuration(data.duration);
+          setSlots(data.available_slots || []);
+          setSelectedSlots(data.available_slots || []);
+          setEditMode(false); // View mode by default
+        }
+      } catch (err) {
+        console.log("No previous schedule");
+      }
+    };
+
+    fetchSchedule();
+  }, [user.id]);
 
   /* ================= GENERATE SLOTS ================= */
   const generateSlots = () => {
+
     if (!loginTime || !logoutTime) {
-      alert("Please select login and logout time");
+      alert("Please select working hours");
       return;
     }
 
@@ -21,58 +50,51 @@ export default function ScheduleDay({ user, goBack }) {
     const end = new Date(`1970-01-01T${logoutTime}:00`);
 
     if (start >= end) {
-      alert("Logout time must be after login time");
+      alert("Logout must be after login");
       return;
     }
 
-    let tempSlots = [];
+    let temp = [];
     let current = new Date(start);
 
     while (current < end) {
+
       let slotStart = new Date(current);
       let slotEnd = new Date(current);
       slotEnd.setMinutes(slotEnd.getMinutes() + duration);
 
       if (slotEnd <= end) {
         const formatted =
-          slotStart.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }) +
+          slotStart.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) +
           " - " +
-          slotEnd.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
+          slotEnd.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-        tempSlots.push(formatted);
+        temp.push(formatted);
       }
 
       current.setMinutes(current.getMinutes() + duration);
     }
 
-    setSlots(tempSlots);
+    setSlots(temp);
     setSelectedSlots([]);
   };
 
-  /* ================= SELECT SLOT ================= */
+  /* ================= TOGGLE SLOT ================= */
   const toggleSlot = (slot) => {
-    setSelectedSlots((prev) =>
+    if (!editMode) return;
+
+    setSelectedSlots(prev =>
       prev.includes(slot)
-        ? prev.filter((s) => s !== slot)
+        ? prev.filter(s => s !== slot)
         : [...prev, slot]
     );
   };
 
-  /* ================= SAVE SCHEDULE ================= */
+  /* ================= SAVE OR UPDATE ================= */
   const saveSchedule = async () => {
-    if (!loginTime || !logoutTime) {
-      alert("Please select working hours");
-      return;
-    }
 
     if (selectedSlots.length === 0) {
-      alert("Please select at least one slot");
+      alert("Select at least one slot");
       return;
     }
 
@@ -80,7 +102,7 @@ export default function ScheduleDay({ user, goBack }) {
       setLoading(true);
 
       const res = await fetch(
-        "http://localhost:8080/api/doctor/schedule",
+        "http://localhost:3000/doctor/schedule",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -89,26 +111,22 @@ export default function ScheduleDay({ user, goBack }) {
             loginTime,
             logoutTime,
             duration,
-            availableSlots: selectedSlots,
+            availableSlots: selectedSlots
           }),
         }
       );
 
-      const data = await res.text();
+      const text = await res.text();
 
       if (!res.ok) {
-        alert(data || "Failed to save schedule");
+        alert(text);
       } else {
         alert("Schedule saved successfully ✅");
-
-        // Optional reset
-        setSlots([]);
-        setSelectedSlots([]);
+        setEditMode(false);
       }
 
     } catch (err) {
-      console.error(err);
-      alert("Server error. Check backend.");
+      alert("Server error");
     } finally {
       setLoading(false);
     }
@@ -124,13 +142,14 @@ export default function ScheduleDay({ user, goBack }) {
           </button>
         )}
 
-        <h1>Schedule Your Day</h1>
+        <h1>{editMode ? "Edit Schedule" : "Doctor Schedule"}</h1>
 
         <div className="input-group">
           <label>Login Time</label>
           <input
             type="time"
             value={loginTime}
+            disabled={!editMode}
             onChange={(e) => setLoginTime(e.target.value)}
           />
         </div>
@@ -140,14 +159,16 @@ export default function ScheduleDay({ user, goBack }) {
           <input
             type="time"
             value={logoutTime}
+            disabled={!editMode}
             onChange={(e) => setLogoutTime(e.target.value)}
           />
         </div>
 
         <div className="input-group">
-          <label>Appointment Duration</label>
+          <label>Duration</label>
           <select
             value={duration}
+            disabled={!editMode}
             onChange={(e) => setDuration(Number(e.target.value))}
           >
             <option value={15}>15 Minutes</option>
@@ -157,36 +178,45 @@ export default function ScheduleDay({ user, goBack }) {
           </select>
         </div>
 
-        <button className="generate-btn" onClick={generateSlots}>
-          Generate Slots
-        </button>
+        {editMode && (
+          <button className="generate-btn" onClick={generateSlots}>
+            Generate Slots
+          </button>
+        )}
 
         {slots.length > 0 && (
           <>
-            <h3>Select Available Slots</h3>
+            <h3>Available Slots</h3>
 
             <div className="slots-grid">
               {slots.map((slot, index) => (
                 <div
                   key={index}
-                  className={`slot ${
-                    selectedSlots.includes(slot) ? "active" : ""
-                  }`}
+                  className={`slot ${selectedSlots.includes(slot) ? "active" : ""}`}
                   onClick={() => toggleSlot(slot)}
                 >
                   {slot}
                 </div>
               ))}
             </div>
-
-            <button
-              className="save-btn"
-              onClick={saveSchedule}
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Save Schedule"}
-            </button>
           </>
+        )}
+
+        {!editMode ? (
+          <button
+            className="edit-btn"
+            onClick={() => setEditMode(true)}
+          >
+            Update Slots
+          </button>
+        ) : (
+          <button
+            className="save-btn"
+            onClick={saveSchedule}
+            disabled={loading}
+          >
+            {loading ? "Saving..." : "Save Changes"}
+          </button>
         )}
 
       </div>

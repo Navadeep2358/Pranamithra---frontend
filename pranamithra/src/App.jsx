@@ -4,20 +4,40 @@ import SideNavbar from "./components/SideNavbar";
 import Home from "./components/Home";
 import CustomerHome from "./customer/CustomerHome";
 import DoctorHome from "./doctor/DoctorHome";
-import ScheduleDay from "./doctor/ScheduleDay";
+import ScheduleDay from "./doctor/ScheduleDay";        // ✅ Added
+import MySchedules from "./doctor/MySchedules";        // ✅ Added
 import AdminHome from "./admin/AdminHome";
 import AuthModal from "./components/AuthModal";
 import Profile from "./components/Profile";
 import "./App.css";
 
 export default function App() {
+
   const [sideOpen, setSideOpen] = useState(false);
   const [auth, setAuth] = useState(null);
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState("light");
   const [loading, setLoading] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
-  const [doctorPage, setDoctorPage] = useState("home"); // NEW
+
+  // ✅ Doctor Page Controller
+  const [doctorPage, setDoctorPage] = useState("home"); 
+  // home | schedule | myschedules
+
+  // 🔥 GLOBAL TOAST
+  const [toast, setToast] = useState(null);
+  const [fadeOut, setFadeOut] = useState(false);
+
+  const showToast = (message, type) => {
+    setToast({ message, type });
+    setFadeOut(false);
+
+    setTimeout(() => setFadeOut(true), 4200);
+    setTimeout(() => {
+      setToast(null);
+      setFadeOut(false);
+    }, 5000);
+  };
 
   useEffect(() => {
     fetch("http://localhost:3000/me", {
@@ -33,6 +53,14 @@ export default function App() {
   return (
     <div className={`app ${theme}`}>
 
+      {/* 🔥 GLOBAL TOAST */}
+      {toast && (
+        <div className={`global-toast ${toast.type} ${fadeOut ? "fade-out" : ""}`}>
+          {toast.message}
+        </div>
+      )}
+
+      {/* ================= TOP NAVBAR ================= */}
       <TopNavbar
         onMenu={() => setSideOpen(true)}
         onLogin={() => setAuth({ type: "Login", role: "customer" })}
@@ -40,28 +68,39 @@ export default function App() {
         user={user}
       />
 
+      {/* ================= SIDE NAVBAR ================= */}
       {sideOpen && (
         <SideNavbar
           onClose={() => setSideOpen(false)}
           user={user}
           setTheme={setTheme}
           setShowProfile={setShowProfile}
+
+          // ✅ NEW: Doctor MySchedules navigation
+          setShowMySchedules={() => setDoctorPage("myschedules")}
+
           onDoctorLogin={() => setAuth({ type: "Login", role: "doctor" })}
           onDoctorRegister={() =>
             setAuth({ type: "Register", role: "doctor" })
           }
+
           onLogout={async () => {
             await fetch("http://localhost:3000/logout", {
               method: "POST",
               credentials: "include"
             });
+
             setUser(null);
             setSideOpen(false);
             setShowProfile(false);
+            setDoctorPage("home");
+
+            showToast("Logout Successful", "success");
           }}
         />
       )}
 
+      {/* ================= AUTH MODAL ================= */}
       {auth && (
         <AuthModal
           key={auth.type + auth.role + Date.now()}
@@ -72,17 +111,23 @@ export default function App() {
             setUser(data);
             setAuth(null);
             setSideOpen(false);
+            setDoctorPage("home");
           }}
         />
       )}
 
       {/* ================= MAIN RENDERING ================= */}
 
+      {/* NOT LOGGED IN */}
       {!showProfile && !user && <Home />}
 
+      {/* CUSTOMER */}
       {!showProfile && user?.role === "customer" &&
         <CustomerHome user={user} />}
 
+      {/* ================= DOCTOR ================= */}
+
+      {/* Doctor Dashboard */}
       {!showProfile && user?.role === "doctor" && doctorPage === "home" &&
         <DoctorHome
           user={user}
@@ -90,6 +135,7 @@ export default function App() {
         />
       }
 
+      {/* Schedule Page */}
       {!showProfile && user?.role === "doctor" && doctorPage === "schedule" &&
         <ScheduleDay
           user={user}
@@ -97,9 +143,19 @@ export default function App() {
         />
       }
 
+      {/* My Schedules Page */}
+      {!showProfile && user?.role === "doctor" && doctorPage === "myschedules" &&
+        <MySchedules
+          user={user}
+          goBack={() => setDoctorPage("home")}
+        />
+      }
+
+      {/* ADMIN */}
       {!showProfile && user?.role === "admin" &&
         <AdminHome />}
 
+      {/* PROFILE */}
       {showProfile && (
         <Profile
           user={user}

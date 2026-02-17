@@ -1,0 +1,143 @@
+.fd-container {
+  padding: 40px 8%;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.fd-header {
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  padding: 40px;
+  border-radius: 20px;
+  color: white;
+  margin-bottom: 40px;
+}
+
+.fd-header h1 {
+  font-size: 34px;
+  margin-bottom: 10px;
+}
+
+.fd-search {
+  margin-top: 20px;
+  display: flex;
+}
+
+.fd-search input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 30px;
+  border: none;
+  outline: none;
+}
+
+.fd-search button {
+  margin-left: 10px;
+  padding: 10px 25px;
+  border-radius: 30px;
+  border: none;
+  background: #f6c23e;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.fd-content {
+  display: flex;
+  gap: 40px;
+}
+
+.fd-sidebar {
+  width: 25%;
+  background: #f8f9fc;
+  padding: 20px;
+  border-radius: 16px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.fd-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.fd-sidebar li {
+  padding: 8px 0;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.fd-sidebar li:hover {
+  color: #2a5298;
+  font-weight: bold;
+}
+
+.fd-doctor-list {
+  width: 75%;
+}
+
+.fd-card {
+  display: flex;
+  gap: 25px;
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  margin-bottom: 25px;
+  transition: 0.3s;
+}
+
+.fd-card:hover {
+  transform: translateY(-5px);
+}
+
+.fd-image img {
+  width: 140px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+.fd-info h2 {
+  margin-bottom: 6px;
+}
+
+.fd-specialization {
+  color: #2a5298;
+  font-weight: bold;
+}
+
+.fd-hospital {
+  color: #6c757d;
+  margin-top: 5px;
+}
+
+.fd-book-btn {
+  margin-top: 12px;
+  padding: 8px 22px;
+  border-radius: 25px;
+  border: none;
+  background: #28a745;
+  color: white;
+  cursor: pointer;
+}
+
+.fd-book-btn:hover {
+  background: #218838;
+}
+
+.fd-back {
+  margin-top: 30px;
+}
+
+.fd-back button {
+  background: none;
+  border: none;
+  color: #2a5298;
+  font-weight: bold;
+  cursor: pointer;
+}
+.active-spec {
+  color: #2a5298;
+  font-weight: bold;
+  background: #e9f2ff;
+  padding: 5px 10px;
+  border-radius: 8px;
+}

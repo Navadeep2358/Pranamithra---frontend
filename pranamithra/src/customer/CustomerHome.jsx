@@ -1,8 +1,9 @@
 import "./CustomerHome.css";
 
-export default function CustomerHome({ user }) {
+export default function CustomerHome({ user, goToDoctors }) {
   return (
     <div className="customer-home">
+      
 
       {/* ================= HERO SECTION ================= */}
       <div className="hero-section">
@@ -18,7 +19,9 @@ export default function CustomerHome({ user }) {
         <div className="dashboard-card">
           <h3>Book Appointment</h3>
           <p>Schedule appointments with doctors easily.</p>
-          <button>Book Now</button>
+          <button onClick={goToDoctors}>
+            Book Now
+          </button>
         </div>
 
         <div className="dashboard-card">
@@ -110,7 +113,6 @@ export default function CustomerHome({ user }) {
 
       {/* ================= INSPIRATION SECTION ================= */}
       <div className="inspiration-section">
-
         <h2 className="inspiration-heading">
           Caring Beyond Consultation
         </h2>
@@ -143,53 +145,129 @@ export default function CustomerHome({ user }) {
 
         </div>
       </div>
-       <footer className="footer">
 
-      <div className="footer-container">
+      {/* ================= TOP DOCTORS ADVERTISEMENT ================= */}
+      <div className="top-doctors-section">
 
-        {/* Column 1 */}
-        <div className="footer-column">
-          <h2 className="footer-logo">Pranamithra</h2>
-          <p>
-            A complete hospital appointment management system.
-            Book doctors, manage records, and experience seamless healthcare.
-          </p>
+        <h2 className="top-doctors-heading">
+          Book Appointment with World No.1 Doctors
+        </h2>
+
+        <div className="doctor-scroll-container">
+      <div className="doctor-scroll">
+
+  {/* Doctor Card 1 */}
+  <div className="doctor-card">
+    <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&q=80" alt="Doctor" />
+    <h4>Dr. Arjun Sharma</h4>
+    <p>Apollo Hospital</p>
+  </div>
+
+  <div className="doctor-card">
+    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=80" alt="Doctor" />
+    <h4>Dr. Meera Reddy</h4>
+    <p>Fortis Healthcare</p>
+  </div>
+
+  <div className="doctor-card">
+    <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&q=80" alt="Doctor" />
+    <h4>Dr. Vikram Patel</h4>
+    <p>Max Hospital</p>
+  </div>
+
+  <div className="doctor-card">
+    <img src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=400&q=80" alt="Doctor" />
+    <h4>Dr. Neha Kapoor</h4>
+    <p>AIIMS Delhi</p>
+  </div>
+
+  <div className="doctor-card">
+    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=80" alt="Doctor" />
+    <h4>Dr. Rohit Verma</h4>
+    <p>Manipal Hospital</p>
+  </div>
+
+  {/* Duplicate for infinite scroll */}
+
+  <div className="doctor-card">
+    <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&q=80" alt="Doctor" />
+    <h4>Dr. Arjun Sharma</h4>
+    <p>Apollo Hospital</p>
+  </div>
+
+  <div className="doctor-card">
+    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=80" alt="Doctor" />
+    <h4>Dr. Meera Reddy</h4>
+    <p>Fortis Healthcare</p>
+  </div>
+
+  <div className="doctor-card">
+    <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&q=80" alt="Doctor" />
+    <h4>Dr. Vikram Patel</h4>
+    <p>Max Hospital</p>
+  </div>
+
+  <div className="doctor-card">
+    <img src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=400&q=80" alt="Doctor" />
+    <h4>Dr. Neha Kapoor</h4>
+    <p>AIIMS Delhi</p>
+  </div>
+
+  <div className="doctor-card">
+    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=80" alt="Doctor" />
+    <h4>Dr. Rohit Verma</h4>
+    <p>Manipal Hospital</p>
+  </div>
+
+</div>
+
+
         </div>
 
-        {/* Column 2 */}
-        <div className="footer-column">
-          <h3>Quick Links</h3>
-          <ul>
-            <li>Home</li>
-            <li>Doctors</li>
-            <li>Appointments</li>
-            <li>Contact</li>
-          </ul>
-        </div>
+      </div>
 
-        {/* Column 3 - FEEDBACK */}
-        <div className="footer-column">
-          <h3>Feedback</h3>
-          <p>We value your feedback to improve our services.</p>
+      {/* ================= FOOTER ================= */}
+      <footer className="footer">
+        <div className="footer-container">
+          <div className="footer-column">
+            <h2 className="footer-logo">Pranamithra</h2>
+            <p>
+              A complete hospital appointment management system.
+              Book doctors, manage records, and experience seamless healthcare.
+            </p>
+          </div>
 
-          <div className="feedback-box-footer">
-            <textarea
-              placeholder="Write your feedback..."
-              rows="3"
-            ></textarea>
-            <button>Submit</button>
+          <div className="footer-column">
+            <h3>Quick Links</h3>
+            <ul>
+              <li>Home</li>
+              <li>Doctors</li>
+              <li>Appointments</li>
+              <li>Contact</li>
+            </ul>
+          </div>
+
+          <div className="footer-column">
+            <h3>Feedback</h3>
+            <p>We value your feedback to improve our services.</p>
+
+            <div className="feedback-box-footer">
+              <textarea
+                placeholder="Write your feedback..."
+                rows="3"
+              ></textarea>
+              <button>Submit</button>
+            </div>
           </div>
         </div>
 
-      </div>
-
-      <div className="footer-bottom">
-        © 2026 Pranamithra | All Rights Reserved
-      </div>
-
-    </footer>
+        <div className="footer-bottom">
+          © 2026 Pranamithra | All Rights Reserved
+        </div>
+      </footer>
 
     </div>
   );
 }
+
 

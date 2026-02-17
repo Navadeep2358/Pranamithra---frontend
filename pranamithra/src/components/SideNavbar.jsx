@@ -7,7 +7,8 @@ export default function SideNavbar({
   onDoctorRegister,
   onLogout,
   setTheme,
-  setShowProfile
+  setShowProfile,
+  setShowMySchedules   // ✅ NEW PROP
 }) {
   return (
     <>
@@ -63,14 +64,25 @@ export default function SideNavbar({
             </>
           )}
 
+          {/* ✅ DOCTOR SECTION UPDATED */}
           {user && user.role === "doctor" && (
             <>
-              <div className="menu-card"
+              <div
+                className="menu-card"
                 onClick={() => {
                   setShowProfile(true)
                   onClose()
                 }}>
                 <h4>Profile</h4>
+              </div>
+
+              <div
+                className="menu-card"
+                onClick={() => {
+                  setShowMySchedules()   // 🔥 NEW
+                  onClose()
+                }}>
+                <h4>My Schedules</h4>
               </div>
 
               <div className="menu-card">

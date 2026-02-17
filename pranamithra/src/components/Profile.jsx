@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import "./Profile.css";
 
 export default function Profile({ goBack }) {
+
   const [data, setData] = useState({});
   const [editMode, setEditMode] = useState(false);
 
-  // 🔐 Password states
+  /* 🔐 Password States */
   const [showPasswordBox, setShowPasswordBox] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -13,6 +14,22 @@ export default function Profile({ goBack }) {
     confirmPassword: ""
   });
 
+  /* 🔥 GLOBAL TOAST */
+  const [popup, setPopup] = useState(null);
+  const [fadeOut, setFadeOut] = useState(false);
+
+  const showPopup = (message, type) => {
+    setPopup({ message, type });
+    setFadeOut(false);
+
+    setTimeout(() => setFadeOut(true), 4200);
+    setTimeout(() => {
+      setPopup(null);
+      setFadeOut(false);
+    }, 5000);
+  };
+
+  /* ================= LOAD PROFILE ================= */
   useEffect(() => {
     fetch("http://localhost:3000/profile", {
       credentials: "include"
@@ -20,6 +37,8 @@ export default function Profile({ goBack }) {
       .then(res => res.json())
       .then(data => setData(data));
   }, []);
+
+  /* ================= HANDLERS ================= */
 
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -36,75 +55,107 @@ export default function Profile({ goBack }) {
     });
   };
 
+  /* ================= SAVE PROFILE ================= */
+
   const saveProfile = async () => {
 
-    if (data.role === "customer") {
+    try {
 
-      await fetch("http://localhost:3000/profile", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data)
+      if (data.role === "customer") {
+
+        await fetch("http://localhost:3000/profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(data)
+        });
+
+      } else if (data.role === "doctor") {
+
+        const formData = new FormData();
+        Object.keys(data).forEach(key => {
+          formData.append(key, data[key]);
+        });
+
+        await fetch("http://localhost:3000/profile", {
+          method: "PUT",
+          credentials: "include",
+          body: formData
+        });
+      }
+
+      showPopup("Profile Updated Successfully", "success");
+      setEditMode(false);
+
+      const res = await fetch("http://localhost:3000/profile", {
+        credentials: "include"
       });
 
-    } else if (data.role === "doctor") {
+      const updated = await res.json();
+      setData(updated);
 
-      const formData = new FormData();
-      Object.keys(data).forEach(key => {
-        formData.append(key, data[key]);
-      });
-
-      await fetch("http://localhost:3000/profile", {
-        method: "PUT",
-        credentials: "include",
-        body: formData
-      });
+    } catch {
+      showPopup("Profile Update Failed", "error");
     }
-
-    alert("Profile Updated Successfully");
-    setEditMode(false);
-
-    fetch("http://localhost:3000/profile", {
-      credentials: "include"
-    })
-      .then(res => res.json())
-      .then(updated => setData(updated));
   };
+
+  /* ================= CHANGE PASSWORD ================= */
 
   const changePassword = async () => {
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert("New passwords do not match");
+      showPopup("New passwords do not match", "error");
       return;
     }
 
-    const res = await fetch("http://localhost:3000/change-password", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword
-      })
-    });
+    try {
 
-    const message = await res.text();
-    alert(message);
-
-    if (res.ok) {
-      setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: ""
+      const res = await fetch("http://localhost:3000/change-password", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        })
       });
-      setShowPasswordBox(false);
+
+      const message = await res.text();
+
+      if (res.ok) {
+
+        showPopup(message || "Password Updated Successfully", "success");
+
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: ""
+        });
+
+        setShowPasswordBox(false);
+
+      } else {
+        showPopup(message || "Password Update Failed", "error");
+      }
+
+    } catch {
+      showPopup("Server Error", "error");
     }
   };
+
+  /* ================= UI ================= */
 
   return (
     <div className="profile-wrapper">
 
-      {/* LEFT PANEL */}
+      {/* 🔥 GLOBAL TOAST */}
+      {popup && (
+        <div className={`profile-toast ${popup.type} ${fadeOut ? "fade-out" : ""}`}>
+          {popup.message}
+        </div>
+      )}
+
+      {/* ================= LEFT PANEL ================= */}
       <div className="profile-left">
 
         {data.doctor_image ? (
@@ -126,6 +177,7 @@ export default function Profile({ goBack }) {
         {data.role === "doctor" && (
           <>
             <p><strong>Hospital:</strong> {data.hospital_name}</p>
+            <p><strong>Experience:</strong> {data.experience || 0} Years</p>
 
             {data.hospital_image && (
               <img
@@ -136,21 +188,14 @@ export default function Profile({ goBack }) {
             )}
           </>
         )}
-
       </div>
 
-      {/* RIGHT PANEL */}
+      {/* ================= RIGHT PANEL ================= */}
       <div className="profile-right">
 
         <div className="profile-header">
           <h2>Personal Information</h2>
-
-          <button
-            onClick={() => {
-              if (editMode) saveProfile();
-              else setEditMode(true);
-            }}
-          >
+          <button onClick={() => editMode ? saveProfile() : setEditMode(true)}>
             {editMode ? "Save" : "Update"}
           </button>
         </div>
@@ -182,6 +227,7 @@ export default function Profile({ goBack }) {
             />
           </div>
 
+          {/* ================= CUSTOMER FIELDS ================= */}
           {data.role === "customer" && (
             <>
               <div>
@@ -197,6 +243,7 @@ export default function Profile({ goBack }) {
               <div>
                 <label>DOB</label>
                 <input
+                  type="date"
                   name="dob"
                   value={data.dob?.split("T")[0] || ""}
                   disabled={!editMode}
@@ -226,6 +273,7 @@ export default function Profile({ goBack }) {
             </>
           )}
 
+          {/* ================= DOCTOR FIELDS ================= */}
           {data.role === "doctor" && (
             <>
               <div>
@@ -243,6 +291,17 @@ export default function Profile({ goBack }) {
                 <input
                   name="specialization"
                   value={data.specialization || ""}
+                  disabled={!editMode}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div>
+                <label>Experience (Years)</label>
+                <input
+                  type="number"
+                  name="experience"
+                  value={data.experience || ""}
                   disabled={!editMode}
                   onChange={handleChange}
                 />
@@ -274,7 +333,8 @@ export default function Profile({ goBack }) {
 
         </div>
 
-        {/* 🔐 PASSWORD SECTION */}
+        {/* ================= PASSWORD SECTION ================= */}
+
         <button
           className="password-btn"
           onClick={() => setShowPasswordBox(!showPasswordBox)}
@@ -285,9 +345,8 @@ export default function Profile({ goBack }) {
         {showPasswordBox && (
           <form className="password-box" autoComplete="off">
 
-            {/* Hidden fields to prevent Chrome autofill */}
-            <input type="text" name="fakeuser" style={{ display: "none" }} />
-            <input type="password" name="fakepass" style={{ display: "none" }} />
+            <input type="text" style={{ display: "none" }} />
+            <input type="password" style={{ display: "none" }} />
 
             <input
               type="password"
