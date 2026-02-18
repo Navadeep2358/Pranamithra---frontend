@@ -4,29 +4,30 @@ import "./MySchedules.css";
 
 export default function MySchedules({ user, goBack }) {
 
-  const [schedule, setSchedule] = useState(null);
+  const [schedules, setSchedules] = useState([]);
   const [costDetails, setCostDetails] = useState(null);
 
   useEffect(() => {
 
-    // Fetch Schedule
-    const fetchSchedule = async () => {
+    /* ================= FETCH ALL SCHEDULES ================= */
+    const fetchSchedules = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/doctor/schedule/${user.id}`,
+          "http://localhost:3000/doctor/my-schedules",
           { credentials: "include" }
         );
 
         if (res.ok) {
           const data = await res.json();
-          setSchedule(data);
+          setSchedules(data);
         }
+
       } catch (err) {
         console.error(err);
       }
     };
 
-    // Fetch Appointment Cost
+    /* ================= FETCH COST ================= */
     const fetchCost = async () => {
       try {
         const res = await fetch(
@@ -38,12 +39,13 @@ export default function MySchedules({ user, goBack }) {
           const data = await res.json();
           setCostDetails(data);
         }
+
       } catch (err) {
         console.error(err);
       }
     };
 
-    fetchSchedule();
+    fetchSchedules();
     fetchCost();
 
   }, [user.id]);
@@ -65,19 +67,27 @@ export default function MySchedules({ user, goBack }) {
         ← Back
       </motion.button>
 
-      <h1 className="page-title">My Latest Schedule</h1>
+      <h1 className="page-title">My Schedules</h1>
 
-      {!schedule && <p>No schedule found.</p>}
+      {schedules.length === 0 && <p>No schedules found.</p>}
 
-      {schedule && (
+      {schedules.map((schedule, i) => (
         <motion.div
+          key={i}
           className="schedule-display-card"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
 
-          {/* Working Hours */}
+          {/* DATE */}
+          <div className="schedule-date">
+            <h2>
+              {new Date(schedule.schedule_date).toDateString()}
+            </h2>
+          </div>
+
+          {/* WORKING HOURS */}
           <div className="schedule-time">
             <h3>Working Hours</h3>
             <p>
@@ -85,7 +95,7 @@ export default function MySchedules({ user, goBack }) {
             </p>
           </div>
 
-          {/* Appointment Cost Section */}
+          {/* COST */}
           {costDetails && (
             <div className="appointment-cost-display">
               <h3>Appointment Costs</h3>
@@ -109,7 +119,7 @@ export default function MySchedules({ user, goBack }) {
             </div>
           )}
 
-          {/* Available Slots */}
+          {/* SLOTS */}
           <div className="schedule-slots">
             <h3>Available Slots</h3>
 
@@ -121,18 +131,15 @@ export default function MySchedules({ user, goBack }) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  whileHover={{ scale: 1.08 }}
-                  whileTap={{ scale: 0.95 }}
                 >
                   {slot}
                 </motion.div>
               ))}
             </div>
-
           </div>
 
         </motion.div>
-      )}
+      ))}
 
     </motion.div>
   );

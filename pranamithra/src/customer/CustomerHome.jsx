@@ -1,6 +1,10 @@
 import "./CustomerHome.css";
 
-export default function CustomerHome({ user, openBookAppointment }) {
+export default function CustomerHome({ 
+  user, 
+  openBookAppointment, 
+  openMyBookings 
+}) {
   return (
     <div className="customer-home">
 
@@ -15,6 +19,7 @@ export default function CustomerHome({ user, openBookAppointment }) {
       {/* ================= MAIN DASHBOARD CARDS ================= */}
       <div className="dashboard-cards">
 
+        {/* BOOK APPOINTMENT CARD */}
         <div className="dashboard-card">
           <h3>Book Appointment</h3>
           <p>Schedule appointments with doctors easily.</p>
@@ -23,10 +28,13 @@ export default function CustomerHome({ user, openBookAppointment }) {
           </button>
         </div>
 
+        {/* MY BOOKINGS CARD */}
         <div className="dashboard-card">
           <h3>My Bookings</h3>
           <p>View your booked appointments.</p>
-          <button>View</button>
+          <button onClick={openMyBookings}>
+            View
+          </button>
         </div>
 
       </div>
@@ -155,7 +163,6 @@ export default function CustomerHome({ user, openBookAppointment }) {
         <div className="doctor-scroll-container">
           <div className="doctor-scroll">
 
-            {/* Doctor Card 1 */}
             <div className="doctor-card">
               <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&q=80" alt="Doctor" />
               <h4>Dr. Arjun Sharma</h4>

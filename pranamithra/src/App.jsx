@@ -2,16 +2,21 @@ import { useEffect, useState } from "react";
 import TopNavbar from "./components/TopNavbar";
 import SideNavbar from "./components/SideNavbar";
 import Home from "./components/Home";
+
 import CustomerHome from "./customer/CustomerHome";
 import FindDoctor from "./customer/FindDoctor";
-import AppointmentPage from "./customer/AppointmentPage";   // ✅ ADDED
+import AppointmentPage from "./customer/AppointmentPage";
+import MyBookings from "./customer/MyBookings";   // ✅ ADDED
+
 import DoctorHome from "./doctor/DoctorHome";
 import ScheduleDay from "./doctor/ScheduleDay";
 import MySchedules from "./doctor/MySchedules";
 import AppointmentCost from "./doctor/AppointmentCost";
+
 import AdminHome from "./admin/AdminHome";
 import AuthModal from "./components/AuthModal";
 import Profile from "./components/Profile";
+
 import "./App.css";
 
 export default function App() {
@@ -23,50 +28,30 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
 
-  // ✅ Doctor Page Controller
+  // PAGE CONTROLLERS
   const [doctorPage, setDoctorPage] = useState("home");
-  // home | schedule | myschedules | appointmentcost
-
-  // ✅ Customer Page Controller
   const [customerPage, setCustomerPage] = useState("home");
-  // home | book | appointment   // ✅ UPDATED COMMENT
+  const [selectedDoctorId, setSelectedDoctorId] = useState(null);
 
-  const [selectedDoctorId, setSelectedDoctorId] = useState(null); // ✅ ADDED
-
-  const [toast, setToast] = useState(null);
-  const [fadeOut, setFadeOut] = useState(false);
-
-  const showToast = (message, type) => {
-    setToast({ message, type });
-    setFadeOut(false);
-
-    setTimeout(() => setFadeOut(true), 4200);
-    setTimeout(() => {
-      setToast(null);
-      setFadeOut(false);
-    }, 5000);
-  };
-
+  // SESSION CHECK
   useEffect(() => {
     fetch("http://localhost:3000/me", {
       credentials: "include"
     })
       .then(res => (res.ok ? res.json() : null))
-      .then(data => data && setUser(data))
+      .then(data => {
+        if (data) setUser(data);
+      })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div style={{ padding: 40 }}>Loading...</div>;
+  if (loading) {
+    return <div style={{ padding: 40 }}>Loading...</div>;
+  }
 
   return (
     <div className={`app ${theme}`}>
-
-      {/* 🔥 GLOBAL TOAST */}
-      {toast && (
-        <div className={`global-toast ${toast.type} ${fadeOut ? "fade-out" : ""}`}>
-          {toast.message}
-        </div>
-      )}
 
       {/* ================= TOP NAVBAR ================= */}
       <TopNavbar
@@ -100,9 +85,7 @@ export default function App() {
             setShowProfile(false);
             setDoctorPage("home");
             setCustomerPage("home");
-            setSelectedDoctorId(null); // ✅ RESET
-
-            showToast("Logout Successful", "success");
+            setSelectedDoctorId(null);
           }}
         />
       )}
@@ -110,86 +93,96 @@ export default function App() {
       {/* ================= AUTH MODAL ================= */}
       {auth && (
         <AuthModal
-          key={auth.type + auth.role + Date.now()}
           type={auth.type}
           role={auth.role}
           onClose={() => setAuth(null)}
-          onSuccess={data => {
+          onSuccess={(data) => {
             setUser(data);
             setAuth(null);
             setSideOpen(false);
             setDoctorPage("home");
             setCustomerPage("home");
-            setSelectedDoctorId(null); // ✅ RESET
+            setSelectedDoctorId(null);
           }}
         />
       )}
 
-      {/* ================= MAIN RENDERING ================= */}
+      {/* ================= MAIN CONTENT ================= */}
 
+      {/* NOT LOGGED IN */}
       {!showProfile && !user && <Home />}
 
       {/* ================= CUSTOMER ================= */}
+      {user?.role === "customer" && !showProfile && (
+        <>
+          {customerPage === "home" && (
+            <CustomerHome
+              user={user}
+              openBookAppointment={() => setCustomerPage("book")}
+              openMyBookings={() => setCustomerPage("mybookings")}   // ✅ ADDED
+            />
+          )}
 
-      {!showProfile && user?.role === "customer" && customerPage === "home" &&
-        <CustomerHome
-          user={user}
-          openBookAppointment={() => setCustomerPage("book")}
-        />
-      }
+          {customerPage === "book" && (
+            <FindDoctor
+              goBack={() => setCustomerPage("home")}
+              openAppointment={(doctorId) => {
+                setSelectedDoctorId(doctorId);
+                setCustomerPage("appointment");
+              }}
+            />
+          )}
 
-      {/* FIND DOCTOR */}
-      {!showProfile && user?.role === "customer" && customerPage === "book" &&
-        <FindDoctor
-          goBack={() => setCustomerPage("home")}
-          openAppointment={(doctorId) => {   // ✅ ADDED
-            setSelectedDoctorId(doctorId);
-            setCustomerPage("appointment");
-          }}
-        />
-      }
+          {customerPage === "appointment" && (
+            <AppointmentPage
+              doctorId={selectedDoctorId}
+              goBack={() => setCustomerPage("book")}
+            />
+          )}
 
-      {/* APPOINTMENT PAGE */}
-      {!showProfile && user?.role === "customer" && customerPage === "appointment" &&
-        <AppointmentPage
-          doctorId={selectedDoctorId}
-          goBack={() => setCustomerPage("book")}
-        />
-      }
+          {customerPage === "mybookings" && (   // ✅ ADDED BLOCK
+            <MyBookings
+              goBack={() => setCustomerPage("home")}
+            />
+          )}
+        </>
+      )}
 
       {/* ================= DOCTOR ================= */}
+      {user?.role === "doctor" && !showProfile && (
+        <>
+          {doctorPage === "home" && (
+            <DoctorHome
+              user={user}
+              openSchedule={() => setDoctorPage("schedule")}
+            />
+          )}
 
-      {!showProfile && user?.role === "doctor" && doctorPage === "home" &&
-        <DoctorHome
-          user={user}
-          openSchedule={() => setDoctorPage("schedule")}
-        />
-      }
+          {doctorPage === "schedule" && (
+            <ScheduleDay
+              user={user}
+              goBack={() => setDoctorPage("home")}
+            />
+          )}
 
-      {!showProfile && user?.role === "doctor" && doctorPage === "schedule" &&
-        <ScheduleDay
-          user={user}
-          goBack={() => setDoctorPage("home")}
-        />
-      }
+          {doctorPage === "myschedules" && (
+            <MySchedules
+              user={user}
+              goBack={() => setDoctorPage("home")}
+            />
+          )}
 
-      {!showProfile && user?.role === "doctor" && doctorPage === "myschedules" &&
-        <MySchedules
-          user={user}
-          goBack={() => setDoctorPage("home")}
-        />
-      }
-
-      {!showProfile && user?.role === "doctor" && doctorPage === "appointmentcost" &&
-        <AppointmentCost
-          user={user}
-          goBack={() => setDoctorPage("home")}
-        />
-      }
+          {doctorPage === "appointmentcost" && (
+            <AppointmentCost
+              user={user}
+              goBack={() => setDoctorPage("home")}
+            />
+          )}
+        </>
+      )}
 
       {/* ================= ADMIN ================= */}
-      {!showProfile && user?.role === "admin" &&
-        <AdminHome />}
+      {user?.role === "admin" && !showProfile && <AdminHome />}
 
       {/* ================= PROFILE ================= */}
       {showProfile && (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./ScheduleDay.css";
 
 export default function ScheduleDay({ user, goBack }) {
@@ -35,7 +35,7 @@ export default function ScheduleDay({ user, goBack }) {
   const generateSlots = () => {
 
     if (!scheduleDate || !loginTime || !logoutTime) {
-      alert("Please select date and working hours");
+      alert("Select date and working hours");
       return;
     }
 
@@ -71,10 +71,10 @@ export default function ScheduleDay({ user, goBack }) {
     }
 
     setSlots(temp);
-    setSelectedSlots([]); // reset selection
+    setSelectedSlots([]);
   };
 
-  /* ================= SLOT TOGGLE FIXED ================= */
+  /* ================= TOGGLE SLOT ================= */
   const toggleSlot = (slot) => {
 
     if (selectedSlots.includes(slot)) {
@@ -87,15 +87,11 @@ export default function ScheduleDay({ user, goBack }) {
   /* ================= SAVE ================= */
   const saveSchedule = async () => {
 
-    if (!scheduleDate) {
-      alert("Select schedule date");
-      return;
-    }
+    if (!scheduleDate)
+      return alert("Select schedule date");
 
-    if (selectedSlots.length === 0) {
-      alert("Select at least one slot");
-      return;
-    }
+    if (selectedSlots.length === 0)
+      return alert("Select at least one slot");
 
     try {
       setLoading(true);
@@ -118,13 +114,10 @@ export default function ScheduleDay({ user, goBack }) {
 
       const text = await res.text();
 
-      if (!res.ok) {
-        alert(text);
-      } else {
-        alert("Schedule saved successfully ✅");
-      }
+      if (!res.ok) alert(text);
+      else alert("Schedule saved successfully ✅");
 
-    } catch (err) {
+    } catch {
       alert("Server error");
     } finally {
       setLoading(false);
@@ -198,7 +191,7 @@ export default function ScheduleDay({ user, goBack }) {
 
         {slots.length > 0 && (
           <>
-            <h3>Available Slots</h3>
+            <h3>Click to Select Slots</h3>
 
             <div className="slots-grid">
               {slots.map((slot, index) => (
