@@ -3,7 +3,8 @@ import TopNavbar from "./components/TopNavbar";
 import SideNavbar from "./components/SideNavbar";
 import Home from "./components/Home";
 import CustomerHome from "./customer/CustomerHome";
-import FindDoctor from "./customer/FindDoctor"; // ✅ ADDED
+import FindDoctor from "./customer/FindDoctor";
+import AppointmentPage from "./customer/AppointmentPage";   // ✅ ADDED
 import DoctorHome from "./doctor/DoctorHome";
 import ScheduleDay from "./doctor/ScheduleDay";
 import MySchedules from "./doctor/MySchedules";
@@ -26,9 +27,11 @@ export default function App() {
   const [doctorPage, setDoctorPage] = useState("home");
   // home | schedule | myschedules | appointmentcost
 
-  // ✅ Customer Page Controller (NEW)
+  // ✅ Customer Page Controller
   const [customerPage, setCustomerPage] = useState("home");
-  // home | book
+  // home | book | appointment   // ✅ UPDATED COMMENT
+
+  const [selectedDoctorId, setSelectedDoctorId] = useState(null); // ✅ ADDED
 
   const [toast, setToast] = useState(null);
   const [fadeOut, setFadeOut] = useState(false);
@@ -96,7 +99,8 @@ export default function App() {
             setSideOpen(false);
             setShowProfile(false);
             setDoctorPage("home");
-            setCustomerPage("home"); // ✅ Reset customer page
+            setCustomerPage("home");
+            setSelectedDoctorId(null); // ✅ RESET
 
             showToast("Logout Successful", "success");
           }}
@@ -115,19 +119,18 @@ export default function App() {
             setAuth(null);
             setSideOpen(false);
             setDoctorPage("home");
-            setCustomerPage("home"); // ✅ Reset customer page
+            setCustomerPage("home");
+            setSelectedDoctorId(null); // ✅ RESET
           }}
         />
       )}
 
       {/* ================= MAIN RENDERING ================= */}
 
-      {/* NOT LOGGED IN */}
       {!showProfile && !user && <Home />}
 
       {/* ================= CUSTOMER ================= */}
 
-      {/* Customer Home */}
       {!showProfile && user?.role === "customer" && customerPage === "home" &&
         <CustomerHome
           user={user}
@@ -135,16 +138,27 @@ export default function App() {
         />
       }
 
-      {/* Book Appointment Page */}
+      {/* FIND DOCTOR */}
       {!showProfile && user?.role === "customer" && customerPage === "book" &&
         <FindDoctor
           goBack={() => setCustomerPage("home")}
+          openAppointment={(doctorId) => {   // ✅ ADDED
+            setSelectedDoctorId(doctorId);
+            setCustomerPage("appointment");
+          }}
+        />
+      }
+
+      {/* APPOINTMENT PAGE */}
+      {!showProfile && user?.role === "customer" && customerPage === "appointment" &&
+        <AppointmentPage
+          doctorId={selectedDoctorId}
+          goBack={() => setCustomerPage("book")}
         />
       }
 
       {/* ================= DOCTOR ================= */}
 
-      {/* Doctor Dashboard */}
       {!showProfile && user?.role === "doctor" && doctorPage === "home" &&
         <DoctorHome
           user={user}
@@ -152,7 +166,6 @@ export default function App() {
         />
       }
 
-      {/* Schedule Page */}
       {!showProfile && user?.role === "doctor" && doctorPage === "schedule" &&
         <ScheduleDay
           user={user}
@@ -160,7 +173,6 @@ export default function App() {
         />
       }
 
-      {/* My Schedules Page */}
       {!showProfile && user?.role === "doctor" && doctorPage === "myschedules" &&
         <MySchedules
           user={user}
@@ -168,7 +180,6 @@ export default function App() {
         />
       }
 
-      {/* Appointment Cost Page */}
       {!showProfile && user?.role === "doctor" && doctorPage === "appointmentcost" &&
         <AppointmentCost
           user={user}

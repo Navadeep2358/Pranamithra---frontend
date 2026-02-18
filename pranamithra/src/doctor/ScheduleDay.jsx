@@ -3,48 +3,39 @@ import "./ScheduleDay.css";
 
 export default function ScheduleDay({ user, goBack }) {
 
+  const [scheduleDate, setScheduleDate] = useState("");
   const [loginTime, setLoginTime] = useState("");
   const [logoutTime, setLogoutTime] = useState("");
-  const [duration, setDuration] = useState(30);
+  const [duration, setDuration] = useState(20);
   const [slots, setSlots] = useState([]);
   const [selectedSlots, setSelectedSlots] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [editMode, setEditMode] = useState(false);
 
-  const GAP_MINUTES = 5; // 🔥 5 minute gap after every appointment
+  const GAP_MINUTES = 5;
 
-  /* ================= LOAD SAVED SCHEDULE ================= */
-  useEffect(() => {
-    const fetchSchedule = async () => {
-      try {
-        const res = await fetch(
-          `http://localhost:3000/doctor/schedule/${user.id}`,
-          { credentials: "include" }
-        );
+  /* ================= NEXT 2 DAYS ================= */
+  const getNextTwoDays = () => {
+    const today = new Date();
 
-        if (res.ok) {
-          const data = await res.json();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
 
-          setLoginTime(data.login_time);
-          setLogoutTime(data.logout_time);
-          setDuration(data.duration);
-          setSlots(data.available_slots || []);
-          setSelectedSlots(data.available_slots || []);
-          setEditMode(false);
-        }
-      } catch (err) {
-        console.log("No previous schedule");
-      }
-    };
+    const dayAfter = new Date(today);
+    dayAfter.setDate(today.getDate() + 2);
 
-    fetchSchedule();
-  }, [user.id]);
+    const format = (date) =>
+      date.toISOString().split("T")[0];
 
-  /* ================= GENERATE SLOTS WITH 5 MIN GAP ================= */
+    return [format(tomorrow), format(dayAfter)];
+  };
+
+  const allowedDates = getNextTwoDays();
+
+  /* ================= GENERATE SLOTS ================= */
   const generateSlots = () => {
 
-    if (!loginTime || !logoutTime) {
-      alert("Please select working hours");
+    if (!scheduleDate || !loginTime || !logoutTime) {
+      alert("Please select date and working hours");
       return;
     }
 
@@ -64,7 +55,6 @@ export default function ScheduleDay({ user, goBack }) {
       let slotStart = new Date(current);
       let slotEnd = new Date(current);
 
-      // Add appointment duration
       slotEnd.setMinutes(slotEnd.getMinutes() + duration);
 
       if (slotEnd > end) break;
@@ -76,28 +66,31 @@ export default function ScheduleDay({ user, goBack }) {
 
       temp.push(formatted);
 
-      // 🔥 Move to next slot including 5 min gap
       current = new Date(slotEnd);
       current.setMinutes(current.getMinutes() + GAP_MINUTES);
     }
 
     setSlots(temp);
-    setSelectedSlots([]);
+    setSelectedSlots([]); // reset selection
   };
 
-  /* ================= TOGGLE SLOT ================= */
+  /* ================= SLOT TOGGLE FIXED ================= */
   const toggleSlot = (slot) => {
-    if (!editMode) return;
 
-    setSelectedSlots(prev =>
-      prev.includes(slot)
-        ? prev.filter(s => s !== slot)
-        : [...prev, slot]
-    );
+    if (selectedSlots.includes(slot)) {
+      setSelectedSlots(selectedSlots.filter(s => s !== slot));
+    } else {
+      setSelectedSlots([...selectedSlots, slot]);
+    }
   };
 
-  /* ================= SAVE OR UPDATE ================= */
+  /* ================= SAVE ================= */
   const saveSchedule = async () => {
+
+    if (!scheduleDate) {
+      alert("Select schedule date");
+      return;
+    }
 
     if (selectedSlots.length === 0) {
       alert("Select at least one slot");
@@ -114,6 +107,7 @@ export default function ScheduleDay({ user, goBack }) {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
+            scheduleDate,
             loginTime,
             logoutTime,
             duration,
@@ -128,7 +122,6 @@ export default function ScheduleDay({ user, goBack }) {
         alert(text);
       } else {
         alert("Schedule saved successfully ✅");
-        setEditMode(false);
       }
 
     } catch (err) {
@@ -148,33 +141,49 @@ export default function ScheduleDay({ user, goBack }) {
           </button>
         )}
 
-        <h1>{editMode ? "Edit Schedule" : "Doctor Schedule"}</h1>
+        <h1>Schedule Next 2 Days</h1>
 
+        {/* DATE */}
+        <div className="input-group">
+          <label>Select Date</label>
+          <select
+            value={scheduleDate}
+            onChange={(e) => setScheduleDate(e.target.value)}
+          >
+            <option value="">-- Select Date --</option>
+            {allowedDates.map(date => (
+              <option key={date} value={date}>
+                {new Date(date).toDateString()}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* LOGIN */}
         <div className="input-group">
           <label>Login Time</label>
           <input
             type="time"
             value={loginTime}
-            disabled={!editMode}
             onChange={(e) => setLoginTime(e.target.value)}
           />
         </div>
 
+        {/* LOGOUT */}
         <div className="input-group">
           <label>Logout Time</label>
           <input
             type="time"
             value={logoutTime}
-            disabled={!editMode}
             onChange={(e) => setLogoutTime(e.target.value)}
           />
         </div>
 
+        {/* DURATION */}
         <div className="input-group">
           <label>Duration</label>
           <select
             value={duration}
-            disabled={!editMode}
             onChange={(e) => setDuration(Number(e.target.value))}
           >
             <option value={10}>10 Minutes</option>
@@ -183,11 +192,9 @@ export default function ScheduleDay({ user, goBack }) {
           </select>
         </div>
 
-        {editMode && (
-          <button className="generate-btn" onClick={generateSlots}>
-            Generate Slots
-          </button>
-        )}
+        <button className="generate-btn" onClick={generateSlots}>
+          Generate Slots
+        </button>
 
         {slots.length > 0 && (
           <>
@@ -207,22 +214,13 @@ export default function ScheduleDay({ user, goBack }) {
           </>
         )}
 
-        {!editMode ? (
-          <button
-            className="edit-btn"
-            onClick={() => setEditMode(true)}
-          >
-            Update Slots
-          </button>
-        ) : (
-          <button
-            className="save-btn"
-            onClick={saveSchedule}
-            disabled={loading}
-          >
-            {loading ? "Saving..." : "Save Changes"}
-          </button>
-        )}
+        <button
+          className="save-btn"
+          onClick={saveSchedule}
+          disabled={loading}
+        >
+          {loading ? "Saving..." : "Save Schedule"}
+        </button>
 
       </div>
     </div>

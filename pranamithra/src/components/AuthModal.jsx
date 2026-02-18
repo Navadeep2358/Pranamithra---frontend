@@ -15,8 +15,9 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
   const [gender, setGender] = useState("");
 
   const [hospitalName, setHospitalName] = useState("");
+  const [hospitalAddress, setHospitalAddress] = useState(""); // ✅ NEW
   const [specialization, setSpecialization] = useState("");
-  const [experience, setExperience] = useState("");   // 🔥 NEW
+  const [experience, setExperience] = useState("");
   const [doctorImage, setDoctorImage] = useState(null);
   const [hospitalImage, setHospitalImage] = useState(null);
 
@@ -105,8 +106,9 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
     fd.append("email", email);
     fd.append("password", password);
     fd.append("hospitalName", hospitalName);
+    fd.append("hospitalAddress", hospitalAddress); // ✅ NEW
     fd.append("specialization", specialization);
-    fd.append("experience", experience);   // 🔥 ADDED
+    fd.append("experience", experience);
     fd.append("doctorImage", doctorImage);
     fd.append("hospitalImage", hospitalImage);
 
@@ -193,6 +195,12 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
               <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
               <input placeholder="Hospital Name" onChange={e => setHospitalName(e.target.value)} />
 
+              {/* ✅ NEW HOSPITAL ADDRESS FIELD */}
+              <input
+                placeholder="Hospital Address"
+                onChange={e => setHospitalAddress(e.target.value)}
+              />
+
               <select onChange={e => setSpecialization(e.target.value)}>
                 <option value="">Select Specialization</option>
                 <option value="cardiology">Cardiology</option>
@@ -201,23 +209,22 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
                 <option value="dentist">Dentist</option>
                 <option value="general">General Physician</option>
                 <option value="orthopedics">Orthopedics</option>
-  <option value="dermatology">Dermatology</option>
-  <option value="pediatrics">Pediatrics</option>
-  <option value="gynecology">Gynecology</option>
-  <option value="psychiatry">Psychiatry</option>
-  <option value="urology">Urology</option>
-  <option value="oncology">Oncology</option>
-  <option value="gastroenterology">Gastroenterology</option>
-  <option value="nephrology">Nephrology</option>
-  <option value="pulmonology">Pulmonology</option>
-  <option value="radiology">Radiology</option>
-  <option value="anesthesiology">Anesthesiology</option>
-  <option value="endocrinology">Endocrinology</option>
-  <option value="ophthalmology">Ophthalmology</option>
-  <option value="plastic_surgery">Plastic Surgery</option>
+                <option value="dermatology">Dermatology</option>
+                <option value="pediatrics">Pediatrics</option>
+                <option value="gynecology">Gynecology</option>
+                <option value="psychiatry">Psychiatry</option>
+                <option value="urology">Urology</option>
+                <option value="oncology">Oncology</option>
+                <option value="gastroenterology">Gastroenterology</option>
+                <option value="nephrology">Nephrology</option>
+                <option value="pulmonology">Pulmonology</option>
+                <option value="radiology">Radiology</option>
+                <option value="anesthesiology">Anesthesiology</option>
+                <option value="endocrinology">Endocrinology</option>
+                <option value="ophthalmology">Ophthalmology</option>
+                <option value="plastic_surgery">Plastic Surgery</option>
               </select>
 
-              {/* 🔥 EXPERIENCE FIELD */}
               <input
                 type="number"
                 placeholder="Years of Experience"

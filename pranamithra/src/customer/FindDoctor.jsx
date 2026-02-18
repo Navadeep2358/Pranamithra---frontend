@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import "./FindDoctor.css";
 
-export default function FindDoctor({ goBack }) {
+export default function FindDoctor({ goBack, openAppointment }) {
 
   const [doctors, setDoctors] = useState([]);
   const [selectedSpec, setSelectedSpec] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
-  /* ================= FETCH DOCTORS ================= */
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
@@ -31,7 +30,6 @@ export default function FindDoctor({ goBack }) {
     fetchDoctors();
   }, []);
 
-  /* ================= SPECIALIZATION LIST ================= */
   const allSpecializations = [
     { value: "all", label: "All" },
     { value: "cardiology", label: "Cardiology" },
@@ -56,9 +54,7 @@ export default function FindDoctor({ goBack }) {
     { value: "plastic_surgery", label: "Plastic Surgery" }
   ];
 
-  /* ================= FILTER LOGIC ================= */
   const filteredDoctors = doctors.filter(doc => {
-
     const docSpec = doc.specialization?.toLowerCase();
 
     const matchSpec =
@@ -75,10 +71,8 @@ export default function FindDoctor({ goBack }) {
   return (
     <div className="fd-container">
 
-      {/* HEADER */}
       <div className="fd-header">
         <h1>Find Your Specialist</h1>
-
         <input
           placeholder="Search doctor or specialization..."
           value={searchTerm}
@@ -89,7 +83,6 @@ export default function FindDoctor({ goBack }) {
 
       <div className="fd-content">
 
-        {/* SIDEBAR */}
         <div className="fd-sidebar">
           <h3>Specializations</h3>
           <ul>
@@ -105,26 +98,20 @@ export default function FindDoctor({ goBack }) {
           </ul>
         </div>
 
-        {/* DOCTOR LIST */}
         <div className="fd-doctor-list">
 
           {loading && <p>Loading doctors...</p>}
 
           {!loading && filteredDoctors.length === 0 && (
             <div className="no-doctor-message">
-              <h3>
-                Sorry, doctors are not available for this specialization today.
-              </h3>
-              <p>
-                Please come back next day or contact customer care.
-              </p>
+              <h3>Sorry, doctors are not available for this specialization today.</h3>
+              <p>Please come back next day or contact customer care.</p>
             </div>
           )}
 
           {filteredDoctors.map(doc => (
             <div className="fd-card" key={doc.id}>
 
-              {/* LEFT IMAGE */}
               <div className="fd-left">
                 <img
                   src={
@@ -136,21 +123,20 @@ export default function FindDoctor({ goBack }) {
                 />
               </div>
 
-              {/* CENTER INFO */}
               <div className="fd-center">
                 <h2>{doc.full_name}</h2>
-
                 <p className="fd-specialization">
                   {doc.specialization?.toUpperCase()}
                 </p>
-
                 <p>{doc.experience}+ Years Experience</p>
                 <p className="fd-hospital">{doc.hospital_name}</p>
               </div>
 
-              {/* RIGHT BUTTON */}
               <div className="fd-right">
-                <button className="fd-book-btn">
+                <button
+                  className="fd-book-btn"
+                  onClick={() => openAppointment(doc.id)}
+                >
                   Book Appointment
                 </button>
               </div>
@@ -161,7 +147,6 @@ export default function FindDoctor({ goBack }) {
         </div>
       </div>
 
-      {/* BACK BUTTON */}
       <div className="fd-back">
         <button onClick={goBack}>
           ← Back to Dashboard

@@ -148,7 +148,6 @@ export default function Profile({ goBack }) {
   return (
     <div className="profile-wrapper">
 
-      {/* 🔥 GLOBAL TOAST */}
       {popup && (
         <div className={`profile-toast ${popup.type} ${fadeOut ? "fade-out" : ""}`}>
           {popup.message}
@@ -177,6 +176,7 @@ export default function Profile({ goBack }) {
         {data.role === "doctor" && (
           <>
             <p><strong>Hospital:</strong> {data.hospital_name}</p>
+            <p><strong>Hospital Address:</strong> {data.hospital_address}</p> {/* ✅ NEW */}
             <p><strong>Experience:</strong> {data.experience || 0} Years</p>
 
             {data.hospital_image && (
@@ -227,7 +227,6 @@ export default function Profile({ goBack }) {
             />
           </div>
 
-          {/* ================= CUSTOMER FIELDS ================= */}
           {data.role === "customer" && (
             <>
               <div>
@@ -273,7 +272,6 @@ export default function Profile({ goBack }) {
             </>
           )}
 
-          {/* ================= DOCTOR FIELDS ================= */}
           {data.role === "doctor" && (
             <>
               <div>
@@ -281,6 +279,17 @@ export default function Profile({ goBack }) {
                 <input
                   name="hospital_name"
                   value={data.hospital_name || ""}
+                  disabled={!editMode}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* ✅ NEW HOSPITAL ADDRESS FIELD */}
+              <div className="full-width">
+                <label>Hospital Address</label>
+                <input
+                  name="hospital_address"
+                  value={data.hospital_address || ""}
                   disabled={!editMode}
                   onChange={handleChange}
                 />
@@ -332,8 +341,6 @@ export default function Profile({ goBack }) {
           )}
 
         </div>
-
-        {/* ================= PASSWORD SECTION ================= */}
 
         <button
           className="password-btn"
