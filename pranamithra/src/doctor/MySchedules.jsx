@@ -5,8 +5,11 @@ import "./MySchedules.css";
 export default function MySchedules({ user, goBack }) {
 
   const [schedule, setSchedule] = useState(null);
+  const [costDetails, setCostDetails] = useState(null);
 
   useEffect(() => {
+
+    // Fetch Schedule
     const fetchSchedule = async () => {
       try {
         const res = await fetch(
@@ -23,7 +26,26 @@ export default function MySchedules({ user, goBack }) {
       }
     };
 
+    // Fetch Appointment Cost
+    const fetchCost = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:3000/doctor/appointment-cost/${user.id}`,
+          { credentials: "include" }
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+          setCostDetails(data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
     fetchSchedule();
+    fetchCost();
+
   }, [user.id]);
 
   return (
@@ -55,6 +77,7 @@ export default function MySchedules({ user, goBack }) {
           transition={{ duration: 0.5 }}
         >
 
+          {/* Working Hours */}
           <div className="schedule-time">
             <h3>Working Hours</h3>
             <p>
@@ -62,6 +85,31 @@ export default function MySchedules({ user, goBack }) {
             </p>
           </div>
 
+          {/* Appointment Cost Section */}
+          {costDetails && (
+            <div className="appointment-cost-display">
+              <h3>Appointment Costs</h3>
+
+              <div className="cost-grid">
+                <div className="cost-box">
+                  <span>10 Minutes</span>
+                  <strong>₹ {costDetails.cost_10}</strong>
+                </div>
+
+                <div className="cost-box">
+                  <span>20 Minutes</span>
+                  <strong>₹ {costDetails.cost_20}</strong>
+                </div>
+
+                <div className="cost-box">
+                  <span>30 Minutes</span>
+                  <strong>₹ {costDetails.cost_30}</strong>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Available Slots */}
           <div className="schedule-slots">
             <h3>Available Slots</h3>
 
@@ -72,7 +120,7 @@ export default function MySchedules({ user, goBack }) {
                   className="slot-card"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.08 }}
+                  transition={{ delay: index * 0.05 }}
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.95 }}
                 >

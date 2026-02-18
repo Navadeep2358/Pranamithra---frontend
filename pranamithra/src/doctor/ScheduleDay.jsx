@@ -11,6 +11,8 @@ export default function ScheduleDay({ user, goBack }) {
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
+  const GAP_MINUTES = 5; // 🔥 5 minute gap after every appointment
+
   /* ================= LOAD SAVED SCHEDULE ================= */
   useEffect(() => {
     const fetchSchedule = async () => {
@@ -28,7 +30,7 @@ export default function ScheduleDay({ user, goBack }) {
           setDuration(data.duration);
           setSlots(data.available_slots || []);
           setSelectedSlots(data.available_slots || []);
-          setEditMode(false); // View mode by default
+          setEditMode(false);
         }
       } catch (err) {
         console.log("No previous schedule");
@@ -38,7 +40,7 @@ export default function ScheduleDay({ user, goBack }) {
     fetchSchedule();
   }, [user.id]);
 
-  /* ================= GENERATE SLOTS ================= */
+  /* ================= GENERATE SLOTS WITH 5 MIN GAP ================= */
   const generateSlots = () => {
 
     if (!loginTime || !logoutTime) {
@@ -61,18 +63,22 @@ export default function ScheduleDay({ user, goBack }) {
 
       let slotStart = new Date(current);
       let slotEnd = new Date(current);
+
+      // Add appointment duration
       slotEnd.setMinutes(slotEnd.getMinutes() + duration);
 
-      if (slotEnd <= end) {
-        const formatted =
-          slotStart.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) +
-          " - " +
-          slotEnd.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      if (slotEnd > end) break;
 
-        temp.push(formatted);
-      }
+      const formatted =
+        slotStart.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) +
+        " - " +
+        slotEnd.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-      current.setMinutes(current.getMinutes() + duration);
+      temp.push(formatted);
+
+      // 🔥 Move to next slot including 5 min gap
+      current = new Date(slotEnd);
+      current.setMinutes(current.getMinutes() + GAP_MINUTES);
     }
 
     setSlots(temp);
@@ -171,10 +177,9 @@ export default function ScheduleDay({ user, goBack }) {
             disabled={!editMode}
             onChange={(e) => setDuration(Number(e.target.value))}
           >
-            <option value={15}>15 Minutes</option>
+            <option value={10}>10 Minutes</option>
+            <option value={20}>20 Minutes</option>
             <option value={30}>30 Minutes</option>
-            <option value={45}>45 Minutes</option>
-            <option value={60}>60 Minutes</option>
           </select>
         </div>
 

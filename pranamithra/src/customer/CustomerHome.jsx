@@ -1,9 +1,8 @@
 import "./CustomerHome.css";
 
-export default function CustomerHome({ user, goToDoctors }) {
+export default function CustomerHome({ user, openBookAppointment }) {
   return (
     <div className="customer-home">
-      
 
       {/* ================= HERO SECTION ================= */}
       <div className="hero-section">
@@ -19,7 +18,7 @@ export default function CustomerHome({ user, goToDoctors }) {
         <div className="dashboard-card">
           <h3>Book Appointment</h3>
           <p>Schedule appointments with doctors easily.</p>
-          <button onClick={goToDoctors}>
+          <button onClick={openBookAppointment}>
             Book Now
           </button>
         </div>
@@ -154,74 +153,40 @@ export default function CustomerHome({ user, goToDoctors }) {
         </h2>
 
         <div className="doctor-scroll-container">
-      <div className="doctor-scroll">
+          <div className="doctor-scroll">
 
-  {/* Doctor Card 1 */}
-  <div className="doctor-card">
-    <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&q=80" alt="Doctor" />
-    <h4>Dr. Arjun Sharma</h4>
-    <p>Apollo Hospital</p>
-  </div>
+            {/* Doctor Card 1 */}
+            <div className="doctor-card">
+              <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&q=80" alt="Doctor" />
+              <h4>Dr. Arjun Sharma</h4>
+              <p>Apollo Hospital</p>
+            </div>
 
-  <div className="doctor-card">
-    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=80" alt="Doctor" />
-    <h4>Dr. Meera Reddy</h4>
-    <p>Fortis Healthcare</p>
-  </div>
+            <div className="doctor-card">
+              <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=80" alt="Doctor" />
+              <h4>Dr. Meera Reddy</h4>
+              <p>Fortis Healthcare</p>
+            </div>
 
-  <div className="doctor-card">
-    <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&q=80" alt="Doctor" />
-    <h4>Dr. Vikram Patel</h4>
-    <p>Max Hospital</p>
-  </div>
+            <div className="doctor-card">
+              <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&q=80" alt="Doctor" />
+              <h4>Dr. Vikram Patel</h4>
+              <p>Max Hospital</p>
+            </div>
 
-  <div className="doctor-card">
-    <img src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=400&q=80" alt="Doctor" />
-    <h4>Dr. Neha Kapoor</h4>
-    <p>AIIMS Delhi</p>
-  </div>
+            <div className="doctor-card">
+              <img src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=400&q=80" alt="Doctor" />
+              <h4>Dr. Neha Kapoor</h4>
+              <p>AIIMS Delhi</p>
+            </div>
 
-  <div className="doctor-card">
-    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=80" alt="Doctor" />
-    <h4>Dr. Rohit Verma</h4>
-    <p>Manipal Hospital</p>
-  </div>
+            <div className="doctor-card">
+              <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=80" alt="Doctor" />
+              <h4>Dr. Rohit Verma</h4>
+              <p>Manipal Hospital</p>
+            </div>
 
-  {/* Duplicate for infinite scroll */}
-
-  <div className="doctor-card">
-    <img src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&q=80" alt="Doctor" />
-    <h4>Dr. Arjun Sharma</h4>
-    <p>Apollo Hospital</p>
-  </div>
-
-  <div className="doctor-card">
-    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=80" alt="Doctor" />
-    <h4>Dr. Meera Reddy</h4>
-    <p>Fortis Healthcare</p>
-  </div>
-
-  <div className="doctor-card">
-    <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&q=80" alt="Doctor" />
-    <h4>Dr. Vikram Patel</h4>
-    <p>Max Hospital</p>
-  </div>
-
-  <div className="doctor-card">
-    <img src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=400&q=80" alt="Doctor" />
-    <h4>Dr. Neha Kapoor</h4>
-    <p>AIIMS Delhi</p>
-  </div>
-
-  <div className="doctor-card">
-    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=80" alt="Doctor" />
-    <h4>Dr. Rohit Verma</h4>
-    <p>Manipal Hospital</p>
-  </div>
-
-</div>
-
-
+          </div>
         </div>
 
       </div>
@@ -229,6 +194,7 @@ export default function CustomerHome({ user, goToDoctors }) {
       {/* ================= FOOTER ================= */}
       <footer className="footer">
         <div className="footer-container">
+
           <div className="footer-column">
             <h2 className="footer-logo">Pranamithra</h2>
             <p>
@@ -259,6 +225,7 @@ export default function CustomerHome({ user, goToDoctors }) {
               <button>Submit</button>
             </div>
           </div>
+
         </div>
 
         <div className="footer-bottom">
@@ -269,5 +236,3 @@ export default function CustomerHome({ user, goToDoctors }) {
     </div>
   );
 }
-
-

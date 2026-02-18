@@ -8,7 +8,8 @@ export default function SideNavbar({
   onLogout,
   setTheme,
   setShowProfile,
-  setShowMySchedules   // ✅ NEW PROP
+  setShowMySchedules,
+  setShowAppointmentCost   // ✅ NEW PROP
 }) {
   return (
     <>
@@ -64,7 +65,6 @@ export default function SideNavbar({
             </>
           )}
 
-          {/* ✅ DOCTOR SECTION UPDATED */}
           {user && user.role === "doctor" && (
             <>
               <div
@@ -79,10 +79,20 @@ export default function SideNavbar({
               <div
                 className="menu-card"
                 onClick={() => {
-                  setShowMySchedules()   // 🔥 NEW
+                  setShowMySchedules()
                   onClose()
                 }}>
                 <h4>My Schedules</h4>
+              </div>
+
+              {/* ✅ NEW FEATURE */}
+              <div
+                className="menu-card"
+                onClick={() => {
+                  setShowAppointmentCost()
+                  onClose()
+                }}>
+                <h4>Appointment Cost</h4>
               </div>
 
               <div className="menu-card">

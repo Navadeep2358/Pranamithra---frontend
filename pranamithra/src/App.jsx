@@ -3,9 +3,11 @@ import TopNavbar from "./components/TopNavbar";
 import SideNavbar from "./components/SideNavbar";
 import Home from "./components/Home";
 import CustomerHome from "./customer/CustomerHome";
+import FindDoctor from "./customer/FindDoctor"; // ✅ ADDED
 import DoctorHome from "./doctor/DoctorHome";
-import ScheduleDay from "./doctor/ScheduleDay";        // ✅ Added
-import MySchedules from "./doctor/MySchedules";        // ✅ Added
+import ScheduleDay from "./doctor/ScheduleDay";
+import MySchedules from "./doctor/MySchedules";
+import AppointmentCost from "./doctor/AppointmentCost";
 import AdminHome from "./admin/AdminHome";
 import AuthModal from "./components/AuthModal";
 import Profile from "./components/Profile";
@@ -21,10 +23,13 @@ export default function App() {
   const [showProfile, setShowProfile] = useState(false);
 
   // ✅ Doctor Page Controller
-  const [doctorPage, setDoctorPage] = useState("home"); 
-  // home | schedule | myschedules
+  const [doctorPage, setDoctorPage] = useState("home");
+  // home | schedule | myschedules | appointmentcost
 
-  // 🔥 GLOBAL TOAST
+  // ✅ Customer Page Controller (NEW)
+  const [customerPage, setCustomerPage] = useState("home");
+  // home | book
+
   const [toast, setToast] = useState(null);
   const [fadeOut, setFadeOut] = useState(false);
 
@@ -75,15 +80,12 @@ export default function App() {
           user={user}
           setTheme={setTheme}
           setShowProfile={setShowProfile}
-
-          // ✅ NEW: Doctor MySchedules navigation
           setShowMySchedules={() => setDoctorPage("myschedules")}
-
+          setShowAppointmentCost={() => setDoctorPage("appointmentcost")}
           onDoctorLogin={() => setAuth({ type: "Login", role: "doctor" })}
           onDoctorRegister={() =>
             setAuth({ type: "Register", role: "doctor" })
           }
-
           onLogout={async () => {
             await fetch("http://localhost:3000/logout", {
               method: "POST",
@@ -94,6 +96,7 @@ export default function App() {
             setSideOpen(false);
             setShowProfile(false);
             setDoctorPage("home");
+            setCustomerPage("home"); // ✅ Reset customer page
 
             showToast("Logout Successful", "success");
           }}
@@ -112,6 +115,7 @@ export default function App() {
             setAuth(null);
             setSideOpen(false);
             setDoctorPage("home");
+            setCustomerPage("home"); // ✅ Reset customer page
           }}
         />
       )}
@@ -121,9 +125,22 @@ export default function App() {
       {/* NOT LOGGED IN */}
       {!showProfile && !user && <Home />}
 
-      {/* CUSTOMER */}
-      {!showProfile && user?.role === "customer" &&
-        <CustomerHome user={user} />}
+      {/* ================= CUSTOMER ================= */}
+
+      {/* Customer Home */}
+      {!showProfile && user?.role === "customer" && customerPage === "home" &&
+        <CustomerHome
+          user={user}
+          openBookAppointment={() => setCustomerPage("book")}
+        />
+      }
+
+      {/* Book Appointment Page */}
+      {!showProfile && user?.role === "customer" && customerPage === "book" &&
+        <FindDoctor
+          goBack={() => setCustomerPage("home")}
+        />
+      }
 
       {/* ================= DOCTOR ================= */}
 
@@ -151,11 +168,19 @@ export default function App() {
         />
       }
 
-      {/* ADMIN */}
+      {/* Appointment Cost Page */}
+      {!showProfile && user?.role === "doctor" && doctorPage === "appointmentcost" &&
+        <AppointmentCost
+          user={user}
+          goBack={() => setDoctorPage("home")}
+        />
+      }
+
+      {/* ================= ADMIN ================= */}
       {!showProfile && user?.role === "admin" &&
         <AdminHome />}
 
-      {/* PROFILE */}
+      {/* ================= PROFILE ================= */}
       {showProfile && (
         <Profile
           user={user}

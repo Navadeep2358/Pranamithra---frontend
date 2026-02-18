@@ -141,3 +141,44 @@
   padding: 5px 10px;
   border-radius: 8px;
 }
+.fd-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  margin-bottom: 25px;
+  transition: 0.3s;
+}
+
+.fd-left img {
+  width: 140px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+.fd-center {
+  flex: 1;
+}
+
+.fd-specialization {
+  font-weight: bold;
+  color: #2a5298;
+  letter-spacing: 1px;
+}
+
+.fd-right {
+  display: flex;
+  align-items: center;
+}
+
+.no-doctor-message {
+  background: #fff3cd;
+  padding: 20px;
+  border-radius: 12px;
+  color: #856404;
+}
