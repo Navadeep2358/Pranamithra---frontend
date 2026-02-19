@@ -9,7 +9,8 @@ export default function SideNavbar({
   setTheme,
   setShowProfile,
   setShowMySchedules,
-  setShowAppointmentCost   // ✅ NEW PROP
+  setShowAppointmentCost,
+  setShowMyBookings   // ✅ NEW PROP
 }) {
   return (
     <>
@@ -43,9 +44,11 @@ export default function SideNavbar({
             </>
           )}
 
+          {/* ================= CUSTOMER ================= */}
           {user && user.role === "customer" && (
             <>
-              <div className="menu-card"
+              <div
+                className="menu-card"
                 onClick={() => {
                   setShowProfile(true)
                   onClose()
@@ -53,7 +56,12 @@ export default function SideNavbar({
                 <h4>Profile</h4>
               </div>
 
-              <div className="menu-card">
+              <div
+                className="menu-card"
+                onClick={() => {
+                  setShowMyBookings()   // ✅ FIXED
+                  onClose()
+                }}>
                 <h4>My Bookings</h4>
               </div>
 
@@ -65,6 +73,7 @@ export default function SideNavbar({
             </>
           )}
 
+          {/* ================= DOCTOR ================= */}
           {user && user.role === "doctor" && (
             <>
               <div
@@ -85,7 +94,6 @@ export default function SideNavbar({
                 <h4>My Schedules</h4>
               </div>
 
-              {/* ✅ NEW FEATURE */}
               <div
                 className="menu-card"
                 onClick={() => {
@@ -107,6 +115,7 @@ export default function SideNavbar({
             </>
           )}
 
+          {/* ================= ADMIN ================= */}
           {user && user.role === "admin" && (
             <>
               <div className="menu-card">

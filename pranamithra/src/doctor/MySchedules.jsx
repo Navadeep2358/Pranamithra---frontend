@@ -6,10 +6,12 @@ export default function MySchedules({ user, goBack }) {
 
   const [schedules, setSchedules] = useState([]);
   const [costDetails, setCostDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 
-    /* ================= FETCH ALL SCHEDULES ================= */
+    if (!user || !user.id) return;
+
     const fetchSchedules = async () => {
       try {
         const res = await fetch(
@@ -19,7 +21,24 @@ export default function MySchedules({ user, goBack }) {
 
         if (res.ok) {
           const data = await res.json();
-          setSchedules(data);
+
+          // 🔥 Hide past schedules here
+        const today = new Date().toISOString().split("T")[0];
+
+const filtered = data.filter(schedule => {
+  return schedule.schedule_date >= today;
+});
+
+          // 🔥 Ensure available_slots is array
+          const formatted = filtered.map(schedule => ({
+            ...schedule,
+            available_slots:
+              typeof schedule.available_slots === "string"
+                ? JSON.parse(schedule.available_slots)
+                : schedule.available_slots || []
+          }));
+
+          setSchedules(formatted);
         }
 
       } catch (err) {
@@ -27,7 +46,6 @@ export default function MySchedules({ user, goBack }) {
       }
     };
 
-    /* ================= FETCH COST ================= */
     const fetchCost = async () => {
       try {
         const res = await fetch(
@@ -47,8 +65,9 @@ export default function MySchedules({ user, goBack }) {
 
     fetchSchedules();
     fetchCost();
+    setLoading(false);
 
-  }, [user.id]);
+  }, [user]);
 
   return (
     <motion.div
@@ -69,11 +88,15 @@ export default function MySchedules({ user, goBack }) {
 
       <h1 className="page-title">My Schedules</h1>
 
-      {schedules.length === 0 && <p>No schedules found.</p>}
+      {loading && <p>Loading schedules...</p>}
+
+      {!loading && schedules.length === 0 && (
+        <p>No schedules found.</p>
+      )}
 
       {schedules.map((schedule, i) => (
         <motion.div
-          key={i}
+          key={schedule.id || i}
           className="schedule-display-card"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}

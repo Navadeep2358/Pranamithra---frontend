@@ -6,7 +6,7 @@ import Home from "./components/Home";
 import CustomerHome from "./customer/CustomerHome";
 import FindDoctor from "./customer/FindDoctor";
 import AppointmentPage from "./customer/AppointmentPage";
-import MyBookings from "./customer/MyBookings";   // ✅ ADDED
+import MyBookings from "./customer/MyBookings";
 
 import DoctorHome from "./doctor/DoctorHome";
 import ScheduleDay from "./doctor/ScheduleDay";
@@ -70,6 +70,7 @@ export default function App() {
           setShowProfile={setShowProfile}
           setShowMySchedules={() => setDoctorPage("myschedules")}
           setShowAppointmentCost={() => setDoctorPage("appointmentcost")}
+          setShowMyBookings={() => setCustomerPage("mybookings")}
           onDoctorLogin={() => setAuth({ type: "Login", role: "doctor" })}
           onDoctorRegister={() =>
             setAuth({ type: "Register", role: "doctor" })
@@ -119,7 +120,7 @@ export default function App() {
             <CustomerHome
               user={user}
               openBookAppointment={() => setCustomerPage("book")}
-              openMyBookings={() => setCustomerPage("mybookings")}   // ✅ ADDED
+              openMyBookings={() => setCustomerPage("mybookings")}
             />
           )}
 
@@ -140,7 +141,7 @@ export default function App() {
             />
           )}
 
-          {customerPage === "mybookings" && (   // ✅ ADDED BLOCK
+          {customerPage === "mybookings" && (
             <MyBookings
               goBack={() => setCustomerPage("home")}
             />

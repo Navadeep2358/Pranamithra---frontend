@@ -36,50 +36,121 @@ export default function MyBookings({ goBack }) {
   /* ================= DOWNLOAD LETTER ================= */
   const downloadLetter = async (bookingId) => {
 
-    const booking = await fetchFullBooking(bookingId);
+    try {
 
-    const doc = new jsPDF();
+      const booking = await fetchFullBooking(bookingId);
+      const doc = new jsPDF("p", "mm", "a4");
+      const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Secure QR using backend token
-    const qrImage = await QRCode.toDataURL(
-      `http://localhost:3000/verify/${booking.qr_token}`
-    );
+      /* ===== Page Border ===== */
+      doc.setDrawColor(200);
+      doc.rect(10, 10, pageWidth - 20, 277);
 
-    doc.setFontSize(18);
-    doc.text("Pranamithra Hospital", 65, 20);
+      /* ===== Header ===== */
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(20);
+      doc.text("Pranamithra Hospital", pageWidth / 2, 25, { align: "center" });
 
-    doc.setFontSize(14);
-    doc.text("Appointment Confirmation Letter", 50, 30);
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "normal");
+      doc.text("Appointment Confirmation Letter", pageWidth / 2, 33, { align: "center" });
 
-    doc.setFontSize(12);
+      doc.line(20, 38, pageWidth - 20, 38);
 
-    // Patient Info
-    doc.text("Patient Information:", 20, 45);
-    doc.text(`Name: ${booking.customer_name}`, 20, 55);
-    doc.text(`Email: ${booking.email}`, 20, 63);
-    doc.text(`Phone: ${booking.phone}`, 20, 71);
+      let y = 50;
 
-    // Doctor Info
-    doc.text("Doctor Information:", 20, 85);
-    doc.text(`Doctor: ${booking.doctor_name}`, 20, 95);
-    doc.text(`Specialization: ${booking.specialization}`, 20, 103);
-    doc.text(`Hospital: ${booking.hospital_name}`, 20, 111);
-    doc.text(`Address: ${booking.hospital_address}`, 20, 119);
+      /* ===== Section Title ===== */
+      const sectionTitle = (title) => {
+        doc.setFillColor(240, 242, 255);
+        doc.rect(20, y - 6, pageWidth - 40, 8, "F");
 
-    // Booking Info
-    doc.text("Booking Details:", 20, 135);
-    doc.text(`Date: ${booking.appointment_date}`, 20, 145);
-    doc.text(`Slot: ${booking.slot_time}`, 20, 153);
-    doc.text(`Consultation Fee: ₹ ${booking.amount}`, 20, 161);
-    doc.text(`Verification Code: ${booking.verification_code}`, 20, 169);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(13);
+        doc.text(title, 25, y);
+        y += 12;
+      };
 
-    // QR
-    doc.addImage(qrImage, "PNG", 140, 135, 50, 50);
+      /* ===== Row Helper ===== */
+      const row = (label, value) => {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
 
-    doc.setFontSize(10);
-    doc.text("Scan QR at hospital reception for verification.", 20, 200);
+        doc.text(label, 25, y);
+        doc.text(String(value || "-"), 110, y);
 
-    doc.save(`Appointment_${booking.id}.pdf`);
+        y += 8;
+      };
+
+      /* ===== Patient Info ===== */
+      sectionTitle("Patient Information");
+      row("Name:", booking.customer_name);
+      row("Email:", booking.email);
+      row("Phone:", booking.phone);
+
+      y += 5;
+
+      /* ===== Doctor Info ===== */
+      sectionTitle("Doctor Information");
+      row("Doctor:", booking.doctor_name);
+      row("Specialization:", booking.specialization);
+      row("Hospital:", booking.hospital_name);
+      row("Address:", booking.hospital_address);
+
+      y += 5;
+
+      /* ===== Appointment Details ===== */
+      sectionTitle("Appointment Details");
+      row(
+        "Date:",
+        new Date(booking.appointment_date).toLocaleDateString("en-IN")
+      );
+      row("Slot:", booking.slot_time);
+      row("Consultation Fee:", `₹ ${booking.amount}`);
+      row("Verification Code:", booking.verification_code);
+
+      /* ===== QR Code ===== */
+      if (booking.qr_token) {
+
+        const qrImage = await QRCode.toDataURL(
+          `http://localhost:3000/verify/${booking.qr_token}`
+        );
+
+        doc.addImage(qrImage, "PNG", pageWidth / 2 - 25, y + 10, 50, 50);
+
+        doc.setFontSize(10);
+        doc.text(
+          "Scan this QR at hospital reception for verification.",
+          pageWidth / 2,
+          y + 70,
+          { align: "center" }
+        );
+      }
+
+      /* ===== Footer ===== */
+      doc.setFontSize(9);
+      doc.setTextColor(120);
+      doc.text(
+        "This is a system-generated appointment confirmation.",
+        pageWidth / 2,
+        285,
+        { align: "center" }
+      );
+
+      doc.save(`Appointment_${booking.id}.pdf`);
+
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("Error generating PDF. Check console.");
+    }
+  };
+
+  /* ================= FORMAT DATE ================= */
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric"
+    });
   };
 
   return (
@@ -95,14 +166,33 @@ export default function MyBookings({ goBack }) {
         {bookings.map((b) => (
           <div key={b.id} className="booking-card">
 
-            <h3>{b.full_name}</h3>
-            <p>{b.specialization}</p>
+            <div className="card-header">
+              <h3 className="doctor-name">{b.doctor_name}</h3>
+              <p className="doctor-specialization">{b.specialization}</p>
+            </div>
 
             <div className="booking-info">
-              <p>📅 {b.appointment_date}</p>
-              <p>⏰ {b.slot_time}</p>
-              <p>💳 ₹ {b.amount}</p>
-              <p className="status">Status: {b.status}</p>
+
+              <div className="info-row">
+                <span>📅 Date</span>
+                <span>{formatDate(b.appointment_date)}</span>
+              </div>
+
+              <div className="info-row">
+                <span>⏰ Time</span>
+                <span>{b.slot_time}</span>
+              </div>
+
+              <div className="info-row">
+                <span>💳 Fee</span>
+                <span>₹ {b.amount}</span>
+              </div>
+
+              <div className="info-row">
+                <span>Status</span>
+                <span className="status">{b.status}</span>
+              </div>
+
             </div>
 
             <div className="btn-row">
