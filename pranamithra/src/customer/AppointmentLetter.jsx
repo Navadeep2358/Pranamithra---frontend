@@ -24,6 +24,12 @@ export default function AppointmentLetter({ booking, close }) {
     });
   };
 
+  const formatAmount = (amount) => {
+    const num = Number(amount);
+    if (isNaN(num)) return "0.00";
+    return num.toFixed(2);
+  };
+
   return (
     <div className="letter-overlay">
       <div className="appointment-letter">
@@ -95,7 +101,7 @@ export default function AppointmentLetter({ booking, close }) {
 
           <div className="info-row">
             <span>Consultation Fee</span>
-            <span>₹ {booking.amount}</span>
+            <span>₹ {formatAmount(booking.amount)}</span>
           </div>
 
           <div className="info-row">

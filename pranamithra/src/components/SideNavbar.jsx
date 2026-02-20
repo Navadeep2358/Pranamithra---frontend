@@ -10,7 +10,8 @@ export default function SideNavbar({
   setShowProfile,
   setShowMySchedules,
   setShowAppointmentCost,
-  setShowMyBookings   // ✅ NEW PROP
+  setShowMyBookings,
+  setShowMyAppointments   // ✅ ADDED PROP
 }) {
   return (
     <>
@@ -59,7 +60,7 @@ export default function SideNavbar({
               <div
                 className="menu-card"
                 onClick={() => {
-                  setShowMyBookings()   // ✅ FIXED
+                  setShowMyBookings()
                   onClose()
                 }}>
                 <h4>My Bookings</h4>
@@ -103,7 +104,13 @@ export default function SideNavbar({
                 <h4>Appointment Cost</h4>
               </div>
 
-              <div className="menu-card">
+              {/* ✅ FIXED: My Appointments Connected */}
+              <div
+                className="menu-card"
+                onClick={() => {
+                  setShowMyAppointments()
+                  onClose()
+                }}>
                 <h4>My Appointments</h4>
               </div>
 

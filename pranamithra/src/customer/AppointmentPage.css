@@ -489,3 +489,277 @@
   background: #dc2626;
   transform: translateY(-2px);
 }
+/* ================= PREMIUM BACKGROUND UPGRADE ================= */
+.appointment-main {
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Soft floating background effect */
+.appointment-main::before {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(79,70,229,0.15), transparent 70%);
+  top: -200px;
+  right: -200px;
+  z-index: 0;
+}
+
+.appointment-main > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ================= FLOATING DOCTOR CARD ================= */
+.doctor-panel {
+  transition: all 0.4s ease;
+  animation: floatCard 6s ease-in-out infinite;
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+.doctor-panel:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 30px 70px rgba(79,70,229,0.2);
+}
+
+/* Doctor image zoom */
+.doctor-image {
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.doctor-image:hover {
+  transform: scale(1.06);
+  box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+}
+
+/* ================= BOOKING PANEL LIFT ================= */
+.booking-panel {
+  transition: all 0.4s ease;
+}
+
+.booking-panel:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 25px 60px rgba(79,70,229,0.15);
+}
+
+/* ================= STEP ANIMATION ================= */
+.step {
+  transition: all 0.3s ease;
+}
+
+.step.active {
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(79,70,229,0.4);
+}
+
+/* ================= DATE CARD GLOW ================= */
+.date-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.date-card::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(79,70,229,0.2), transparent);
+  top: 0;
+  left: -100%;
+  transition: 0.6s;
+}
+
+.date-card:hover::after {
+  left: 100%;
+}
+
+/* ================= SLOT PREMIUM EFFECT ================= */
+.slot-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.slot-card::before {
+  content: "";
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.2), transparent 60%);
+  top: -50%;
+  left: -50%;
+  transform: scale(0);
+  transition: 0.4s ease;
+}
+
+.slot-card:hover::before {
+  transform: scale(1);
+}
+
+.slot-card:hover {
+  box-shadow: 0 15px 30px rgba(79,70,229,0.3);
+}
+
+/* ================= CONFIRM CARD GLASS ENHANCEMENT ================= */
+.confirm-card {
+  backdrop-filter: blur(15px);
+  transition: all 0.4s ease;
+}
+
+.confirm-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 60px rgba(79,70,229,0.2);
+}
+
+/* ================= BUTTON GLOW EFFECT ================= */
+.book-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.book-btn::after {
+  content: "";
+  position: absolute;
+  width: 300%;
+  height: 300%;
+  background: radial-gradient(circle, rgba(255,255,255,0.4), transparent 60%);
+  top: -100%;
+  left: -100%;
+  transform: scale(0);
+  transition: 0.4s ease;
+}
+
+.book-btn:hover::after {
+  transform: scale(1);
+}
+
+.book-btn:hover {
+  box-shadow: 0 20px 40px rgba(16,185,129,0.5);
+}
+
+/* ================= SMALL BACK BUTTON UPGRADE ================= */
+.small-back-btn {
+  transition: all 0.3s ease;
+}
+
+.small-back-btn:hover {
+  box-shadow: 0 8px 20px rgba(239,68,68,0.4);
+}
+
+/* ================= PAGE FADE IN ================= */
+@keyframes fadeInPage {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.appointment-main {
+  animation: fadeInPage 0.6s ease forwards;
+}
+/* WRAPPER */
+.appointment-wrapper {
+  padding: 20px 80px 40px 80px;
+}
+
+/* TOP BAR */
+.appointment-top-bar {
+  margin-bottom: 20px;
+}
+
+/* BACK BUTTON */
+.top-back-btn {
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: #4f46e5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-back-btn:hover {
+  transform: translateX(-4px);
+  color: #4338ca;
+}
+/* ================= POPUP STYLES ================= */
+
+.auth-popup {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  min-width: 240px;
+  max-width: 280px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+  animation: slideIn 0.35s ease;
+  z-index: 20000;
+}
+
+/* SUCCESS */
+.auth-popup.success {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+}
+
+/* ERROR */
+.auth-popup.error {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+
+/* CANCEL */
+.auth-popup.cancel {
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+}
+
+.popup-icon {
+  font-size: 18px;
+  background: rgba(255,255,255,0.25);
+  padding: 6px 10px;
+  border-radius: 10px;
+}
+
+.popup-text {
+  flex: 1;
+}
+
+/* Slide In Animation */
+@keyframes slideIn {
+  from { 
+    opacity: 0; 
+    transform: translateX(70px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0); 
+  }
+}
+
+/* Fade Out */
+.fade-out {
+  animation: fadeOut 0.8s forwards;
+}
+
+@keyframes fadeOut {
+  to { 
+    opacity: 0; 
+    transform: translateX(70px); 
+  }
+}

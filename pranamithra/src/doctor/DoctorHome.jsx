@@ -1,6 +1,7 @@
 import "./DoctorHome.css";
 
-export default function DoctorHome({ user, openSchedule }) {
+export default function DoctorHome({ user, openSchedule, openAppointments }) {
+
   if (!user || user.role !== "doctor") return null;
 
   /* ================= PENDING ================= */
@@ -35,7 +36,7 @@ export default function DoctorHome({ user, openSchedule }) {
       <div className="doctor-hero">
         <div>
           <div className="welcome-text">WELCOME</div>
-          <div className="doctor-name">Dr. {user.name}</div>
+          <div className="doctor-name1">Dr. {user.name}</div>
         </div>
       </div>
 
@@ -43,16 +44,21 @@ export default function DoctorHome({ user, openSchedule }) {
       <h3 className="services-heading">Services</h3>
 
       <div className="services-grid">
-        <div className="service-box">
+
+        <div
+          className="service-box"
+          onClick={openAppointments}
+        >
           My Appointments
         </div>
 
-        <div 
+        <div
           className="service-box"
           onClick={openSchedule}
         >
           Schedule the Day
         </div>
+
       </div>
 
       {/* ================= DOCTOR INSPIRATION SECTION ================= */}

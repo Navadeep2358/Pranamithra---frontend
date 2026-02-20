@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./AppointmentPage.css";
 
+
 export default function AppointmentPage({ doctorId, goBack }) {
 
   const [doctor, setDoctor] = useState(null);
@@ -16,6 +17,21 @@ export default function AppointmentPage({ doctorId, goBack }) {
   const [scheduleDuration, setScheduleDuration] = useState(null);
 
   const [loading, setLoading] = useState(true);
+
+  /* ================= POPUP ================= */
+  const [popup, setPopup] = useState(null);
+  const [fadeOut, setFadeOut] = useState(false);
+
+  const showPopup = (message, type) => {
+    setPopup({ message, type });
+    setFadeOut(false);
+
+    setTimeout(() => setFadeOut(true), 4200);
+    setTimeout(() => {
+      setPopup(null);
+      setFadeOut(false);
+    }, 5000);
+  };
 
   /* ================= FETCH DOCTOR & COST ================= */
   useEffect(() => {
@@ -39,6 +55,7 @@ export default function AppointmentPage({ doctorId, goBack }) {
 
       } catch (err) {
         console.error(err);
+        showPopup("Failed to load doctor details", "error");
       } finally {
         setLoading(false);
       }
@@ -48,23 +65,22 @@ export default function AppointmentPage({ doctorId, goBack }) {
   }, [doctorId]);
 
   /* ================= DATE HELPERS ================= */
-  /* ================= DATE HELPERS ================= */
-const today = new Date();
+  const today = new Date();
 
-const tomorrow = new Date();
-tomorrow.setDate(today.getDate() + 1);
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
 
-const dayAfter = new Date();
-dayAfter.setDate(today.getDate() + 2);
+  const dayAfter = new Date();
+  dayAfter.setDate(today.getDate() + 2);
 
-const formatDate = (d) => {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
+  const formatDate = (d) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
-const displayDate = (d) => d.toDateString();
+  const displayDate = (d) => d.toDateString();
 
   /* ================= FETCH SLOTS ================= */
   useEffect(() => {
@@ -79,9 +95,12 @@ const displayDate = (d) => d.toDateString();
         setSlots(data || []);
         setSelectedSlot(null);
         setCalculatedAmount(null);
-        setScheduleDuration(null); // reset duration lock
+        setScheduleDuration(null);
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        showPopup("Failed to fetch slots", "error");
+      });
 
   }, [selectedDate, doctorId]);
 
@@ -97,11 +116,8 @@ const displayDate = (d) => d.toDateString();
       hours = parseInt(hours);
       minutes = parseInt(minutes);
 
-      if (modifier.toLowerCase() === "pm" && hours !== 12)
-        hours += 12;
-
-      if (modifier.toLowerCase() === "am" && hours === 12)
-        hours = 0;
+      if (modifier.toLowerCase() === "pm" && hours !== 12) hours += 12;
+      if (modifier.toLowerCase() === "am" && hours === 12) hours = 0;
 
       return hours * 60 + minutes;
     };
@@ -111,16 +127,11 @@ const displayDate = (d) => d.toDateString();
 
   /* ================= SLOT SELECT ================= */
   const handleSlotSelect = (slot) => {
-
     const duration = getDurationFromSlot(slot);
 
-    // First slot selection sets duration lock
-    if (!scheduleDuration) {
-      setScheduleDuration(duration);
-    }
-
-    // Allow only same duration slots
+    if (!scheduleDuration) setScheduleDuration(duration);
     if (scheduleDuration && duration !== scheduleDuration) {
+      showPopup("Please select slots with same duration", "error");
       return;
     }
 
@@ -137,8 +148,10 @@ const displayDate = (d) => d.toDateString();
   /* ================= BOOK ================= */
   const handleBooking = async () => {
 
-    if (!selectedSlot)
-      return alert("Please select slot");
+    if (!selectedSlot) {
+      showPopup("Please select a slot", "error");
+      return;
+    }
 
     const duration = getDurationFromSlot(selectedSlot);
 
@@ -157,186 +170,219 @@ const displayDate = (d) => d.toDateString();
 
     const msg = await res.text();
 
-    if (!res.ok)
-      return alert(msg);
+    if (!res.ok) {
+      showPopup(msg, "error");
+      return;
+    }
 
-    alert("Appointment Booked Successfully 🎉");
-    goBack();
+    showPopup("Appointment Booked Successfully 🎉", "success");
+
+    setTimeout(() => {
+      goBack();
+    }, 1500);
   };
 
   if (loading) return <p style={{ padding: 40 }}>Loading...</p>;
   if (!doctor) return <p style={{ padding: 40 }}>Doctor not found</p>;
 
   return (
-    <div className="appointment-main">
+    <div className="appointment-wrapper">
 
-      {/* LEFT PANEL */}
-      <div className="doctor-panel">
-        <img
-          src={`http://localhost:3000/uploads/${doctor.doctor_image}`}
-          className="doctor-image"
-          alt="Doctor"
-        />
-        <div className="doctor-name">{doctor.full_name}</div>
-        <div className="spec">{doctor.specialization}</div>
-        <div className="experience">{doctor.experience}+ Years Experience</div>
-
-        <div className="hospital-box">
-          <strong>Hospital:</strong> {doctor.hospital_name}<br />
-          <strong>Address:</strong> {doctor.hospital_address}
+      {/* ✅ SAME AUTH POPUP STYLE */}
+      {popup && (
+        <div className={`auth-popup ${popup.type} ${fadeOut ? "fade-out" : ""}`}>
+          <div className="popup-icon">
+            {popup.type === "success" && "✓"}
+            {popup.type === "error" && "✕"}
+            {popup.type === "cancel" && "⚠"}
+          </div>
+          <div className="popup-text">
+            {popup.message}
+          </div>
         </div>
+      )}
+
+      <div className="appointment-top-bar">
+        <button
+          className="top-back-btn"
+          onClick={() => {
+            showPopup("Action Cancelled", "cancel");
+            setTimeout(() => goBack(), 800);
+          }}
+        >
+          ← Back to Dashboard
+        </button>
       </div>
 
-      {/* RIGHT PANEL */}
-      <div className="booking-panel">
+      {/* ===== REST OF YOUR FULL UI EXACTLY SAME ===== */}
+      <div className="appointment-main">
 
-        {/* STEPS */}
-        <div className="steps">
-          <div className={`step ${step === 1 ? "active" : ""}`}>1. Terms</div>
-          <div className={`step ${step === 2 ? "active" : ""}`}>2. Select Slot</div>
-          <div className={`step ${step === 3 ? "active" : ""}`}>3. Confirm</div>
+        {/* LEFT PANEL */}
+        <div className="doctor-panel">
+          <img
+            src={`http://localhost:3000/uploads/${doctor.doctor_image}`}
+            className="doctor-image"
+            alt="Doctor"
+          />
+          <div className="doctor-name">{doctor.full_name}</div>
+          <div className="spec">{doctor.specialization}</div>
+          <div className="experience">{doctor.experience}+ Years Experience</div>
+
+          <div className="hospital-box">
+            <strong>Hospital:</strong> {doctor.hospital_name}<br />
+            <strong>Address:</strong> {doctor.hospital_address}
+          </div>
         </div>
 
-        {/* ================= STEP 1 ================= */}
-        {step === 1 && (
-          <>
-            <h3>Terms & Conditions</h3>
+        {/* RIGHT PANEL */}
+        <div className="booking-panel">
 
-            <ul className="terms-list">
-              <li>Appointment once booked cannot be cancelled.</li>
-              <li>Please arrive 15 minutes early.</li>
-              <li>No refund policy.</li>
-              <li>Carry valid ID proof.</li>
-              <li>Emergency cases prioritized.</li>
-              <li>Slot valid only for selected date.</li>
-              <li>Doctor may reschedule in rare cases.</li>
-              <li>Late arrival may reduce consultation time.</li>
-              <li>Follow hospital safety protocols.</li>
-              <li>Payments are non-transferable.</li>
-            </ul>
+          {/* STEPS */}
+          <div className="steps">
+            <div className={`step ${step === 1 ? "active" : ""}`}>1. Terms</div>
+            <div className={`step ${step === 2 ? "active" : ""}`}>2. Select Slot</div>
+            <div className={`step ${step === 3 ? "active" : ""}`}>3. Confirm</div>
+          </div>
 
-            <div className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={agree}
-                onChange={() => setAgree(!agree)}
-              />
-              <label>I agree to all terms</label>
-            </div>
+          {/* STEP 1 */}
+          {step === 1 && (
+            <>
+              <h3>Terms & Conditions</h3>
 
-            <button
-              className="primary-btn"
-              disabled={!agree}
-              onClick={() => setStep(2)}
-            >
-              Proceed →
-            </button>
-          </>
-        )}
+              <ul className="terms-list">
+                <li>Appointment once booked cannot be cancelled.</li>
+                <li>Please arrive 15 minutes early.</li>
+                <li>No refund policy.</li>
+                <li>Carry valid ID proof.</li>
+                <li>Emergency cases prioritized.</li>
+                <li>Slot valid only for selected date.</li>
+                <li>Doctor may reschedule in rare cases.</li>
+                <li>Late arrival may reduce consultation time.</li>
+                <li>Follow hospital safety protocols.</li>
+                <li>Payments are non-transferable.</li>
+              </ul>
 
-        {/* ================= STEP 2 ================= */}
-        {step === 2 && (
-          <>
-            <h3>Select Date</h3>
-
-            <div className="date-grid">
-              <div
-                className={`date-card ${selectedDate === formatDate(tomorrow) ? "selected" : ""}`}
-                onClick={() => setSelectedDate(formatDate(tomorrow))}
-              >
-                {displayDate(tomorrow)}
+              <div className="checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={agree}
+                  onChange={() => setAgree(!agree)}
+                />
+                <label>I agree to all terms</label>
               </div>
 
-              <div
-                className={`date-card ${selectedDate === formatDate(dayAfter) ? "selected" : ""}`}
-                onClick={() => setSelectedDate(formatDate(dayAfter))}
+              <button
+                className="primary-btn"
+                disabled={!agree}
+                onClick={() => setStep(2)}
               >
-                {displayDate(dayAfter)}
+                Proceed →
+              </button>
+            </>
+          )}
+
+          {/* STEP 2 */}
+          {step === 2 && (
+            <>
+              <h3>Select Date</h3>
+
+              <div className="date-grid">
+                <div
+                  className={`date-card ${selectedDate === formatDate(tomorrow) ? "selected" : ""}`}
+                  onClick={() => setSelectedDate(formatDate(tomorrow))}
+                >
+                  {displayDate(tomorrow)}
+                </div>
+
+                <div
+                  className={`date-card ${selectedDate === formatDate(dayAfter) ? "selected" : ""}`}
+                  onClick={() => setSelectedDate(formatDate(dayAfter))}
+                >
+                  {displayDate(dayAfter)}
+                </div>
               </div>
-            </div>
 
-            {selectedDate && (
-              <>
-                <h3 style={{ marginTop: 30 }}>Available Slots</h3>
+              {selectedDate && (
+                <>
+                  <h3 style={{ marginTop: 30 }}>Available Slots</h3>
 
-                <div className="slot-grid">
+                  <div className="slot-grid">
+                    {slots.length === 0 && (
+                      <div className="no-slots-box">
+                        No slots available for this day.
+                      </div>
+                    )}
 
-                  {slots.length === 0 && (
-                    <div className="no-slots-box">
-                      No slots available for this day.
+                    {slots.map((slot, index) => {
+                      const duration = getDurationFromSlot(slot);
+                      const disabled =
+                        scheduleDuration && duration !== scheduleDuration;
+
+                      return (
+                        <div
+                          key={index}
+                          className={`slot-card ${selectedSlot === slot ? "selected" : ""} ${disabled ? "disabled" : ""}`}
+                          onClick={() => !disabled && handleSlotSelect(slot)}
+                        >
+                          {slot}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {calculatedAmount && (
+                    <div className="amount-box">
+                      Consultation Fee: ₹ {calculatedAmount}
                     </div>
                   )}
 
-                  {slots.map((slot, index) => {
-                    const duration = getDurationFromSlot(slot);
-                    const disabled =
-                      scheduleDuration && duration !== scheduleDuration;
+                  <button
+                    className="confirm-btn"
+                    disabled={!selectedSlot}
+                    onClick={() => setStep(3)}
+                  >
+                    Confirm Slot →
+                  </button>
 
-                    return (
-                      <div
-                        key={index}
-                        className={`slot-card ${selectedSlot === slot ? "selected" : ""} ${disabled ? "disabled" : ""}`}
-                        onClick={() => !disabled && handleSlotSelect(slot)}
-                      >
-                        {slot}
-                      </div>
-                    );
-                  })}
+                  <button
+                    className="small-back-btn"
+                    onClick={() => setStep(1)}
+                  >
+                    ← Back
+                  </button>
+                </>
+              )}
+            </>
+          )}
 
-                </div>
+          {/* STEP 3 */}
+          {step === 3 && (
+            <>
+              <h3 className="confirm-title">Confirm Appointment</h3>
 
-                {calculatedAmount && (
-                  <div className="amount-box">
-                    Consultation Fee: ₹ {calculatedAmount}
-                  </div>
-                )}
+              <div className="confirm-card">
+                <p><strong>Doctor:</strong> {doctor.full_name}</p>
+                <p><strong>Date:</strong> {selectedDate}</p>
+                <p><strong>Slot:</strong> {selectedSlot}</p>
+                <p><strong>Fee:</strong> ₹ {calculatedAmount}</p>
+              </div>
 
-                <button
-                  className="confirm-btn"
-                  disabled={!selectedSlot}
-                  onClick={() => setStep(3)}
-                >
-                  Confirm Slot →
+              <div className="confirm-buttons">
+                <button className="book-btn" onClick={handleBooking}>
+                  Book Appointment
                 </button>
 
                 <button
-                  className="small-back-btn"
-                  onClick={() => setStep(1)}
+                  className="back-btn-small"
+                  onClick={() => setStep(2)}
                 >
                   ← Back
                 </button>
-              </>
-            )}
-          </>
-        )}
+              </div>
+            </>
+          )}
 
-        {/* ================= STEP 3 ================= */}
-        {step === 3 && (
-          <>
-            <h3 className="confirm-title">Confirm Appointment</h3>
-
-            <div className="confirm-card">
-              <p><strong>Doctor:</strong> {doctor.full_name}</p>
-              <p><strong>Date:</strong> {selectedDate}</p>
-              <p><strong>Slot:</strong> {selectedSlot}</p>
-              <p><strong>Fee:</strong> ₹ {calculatedAmount}</p>
-            </div>
-
-            <div className="confirm-buttons">
-              <button className="book-btn" onClick={handleBooking}>
-                Book Appointment
-              </button>
-
-              <button
-                className="back-btn-small"
-                onClick={() => setStep(2)}
-              >
-                ← Back
-              </button>
-            </div>
-          </>
-        )}
-
+        </div>
       </div>
     </div>
   );

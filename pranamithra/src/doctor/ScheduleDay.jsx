@@ -11,6 +11,21 @@ export default function ScheduleDay({ user, goBack }) {
   const [selectedSlots, setSelectedSlots] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  /* ================= POPUP ================= */
+  const [popup, setPopup] = useState(null);
+  const [fadeOut, setFadeOut] = useState(false);
+
+  const showPopup = (message, type) => {
+    setPopup({ message, type });
+    setFadeOut(false);
+
+    setTimeout(() => setFadeOut(true), 4200);
+    setTimeout(() => {
+      setPopup(null);
+      setFadeOut(false);
+    }, 5000);
+  };
+
   const GAP_MINUTES = 5;
 
   /* ================= NEXT 2 DAYS ================= */
@@ -35,7 +50,7 @@ export default function ScheduleDay({ user, goBack }) {
   const generateSlots = () => {
 
     if (!scheduleDate || !loginTime || !logoutTime) {
-      alert("Select date and working hours");
+      showPopup("Select date and working hours", "error");
       return;
     }
 
@@ -43,7 +58,7 @@ export default function ScheduleDay({ user, goBack }) {
     const end = new Date(`1970-01-01T${logoutTime}:00`);
 
     if (start >= end) {
-      alert("Logout must be after login");
+      showPopup("Logout must be after login", "error");
       return;
     }
 
@@ -87,11 +102,15 @@ export default function ScheduleDay({ user, goBack }) {
   /* ================= SAVE ================= */
   const saveSchedule = async () => {
 
-    if (!scheduleDate)
-      return alert("Select schedule date");
+    if (!scheduleDate) {
+      showPopup("Select schedule date", "error");
+      return;
+    }
 
-    if (selectedSlots.length === 0)
-      return alert("Select at least one slot");
+    if (selectedSlots.length === 0) {
+      showPopup("Select at least one slot", "error");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -107,18 +126,23 @@ export default function ScheduleDay({ user, goBack }) {
             loginTime,
             logoutTime,
             duration,
-            availableSlots: selectedSlots
+            selectedSlots
           }),
         }
       );
 
       const text = await res.text();
 
-      if (!res.ok) alert(text);
-      else alert("Schedule saved successfully ✅");
+      if (!res.ok) {
+        showPopup(text, "error");
+      } else {
+        showPopup("Schedule saved successfully ✅", "success");
+        setSelectedSlots([]);
+        setSlots([]);
+      }
 
     } catch {
-      alert("Server error");
+      showPopup("Server error", "error");
     } finally {
       setLoading(false);
     }
@@ -126,10 +150,31 @@ export default function ScheduleDay({ user, goBack }) {
 
   return (
     <div className="schedule-page">
+
+      {/* ✅ POPUP */}
+      {popup && (
+        <div className={`auth-popup ${popup.type} ${fadeOut ? "fade-out" : ""}`}>
+          <div className="popup-icon">
+            {popup.type === "success" && "✓"}
+            {popup.type === "error" && "✕"}
+            {popup.type === "cancel" && "⚠"}
+          </div>
+          <div className="popup-text">
+            {popup.message}
+          </div>
+        </div>
+      )}
+
       <div className="schedule-card">
 
         {goBack && (
-          <button className="back-btn" onClick={goBack}>
+          <button
+            className="back-btn"
+            onClick={() => {
+              showPopup("Action Cancelled", "cancel");
+              setTimeout(() => goBack(), 800);
+            }}
+          >
             ← Back
           </button>
         )}
