@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import "./AdminHome.css";
 
+/* ===== LOCALHOST BACKEND ===== */
+const API = "http://localhost:3000";
+
 export default function AdminHome() {
   const [page, setPage] = useState(
     localStorage.getItem("adminPage") || "home"
@@ -25,7 +28,7 @@ export default function AdminHome() {
   /* ================= LOAD DATA ================= */
   useEffect(() => {
     if (page === "verify") {
-      fetch("http://localhost:3000/admin/doctors/pending", {
+      fetch(`${API}/admin/doctors/pending`, {
         credentials: "include",
       })
         .then((r) => r.json())
@@ -33,7 +36,7 @@ export default function AdminHome() {
     }
 
     if (page === "doctors") {
-      fetch("http://localhost:3000/admin/doctors", {
+      fetch(`${API}/admin/doctors`, {
         credentials: "include",
       })
         .then((r) => r.json())
@@ -41,7 +44,7 @@ export default function AdminHome() {
     }
 
     if (page === "customers") {
-      fetch("http://localhost:3000/admin/customers", {
+      fetch(`${API}/admin/customers`, {
         credentials: "include",
       })
         .then((r) => r.json())
@@ -68,7 +71,6 @@ export default function AdminHome() {
 
   return (
     <div className="admin-container">
-      {/* ================= HERO ================= */}
       <div className="admin-hero">
         <div className="admin-hero-text">
           <div className="welcome-text">WELCOME</div>
@@ -76,7 +78,6 @@ export default function AdminHome() {
         </div>
       </div>
 
-      {/* ================= HOME ================= */}
       {page === "home" && (
         <>
           <h3 className="services-heading">Services</h3>
@@ -100,7 +101,6 @@ export default function AdminHome() {
         </>
       )}
 
-      {/* ================= VERIFY PAGE ================= */}
       {page === "verify" && (
         <div className="verify-page">
           <div className="verify-header">
@@ -114,7 +114,7 @@ export default function AdminHome() {
               <button
                 onClick={async () => {
                   const res = await fetch(
-                    `http://localhost:3000/admin/doctors/${doc.id}`,
+                    `${API}/admin/doctors/${doc.id}`,
                     { credentials: "include" }
                   );
                   setSelectedDoctor(await res.json());
@@ -127,7 +127,6 @@ export default function AdminHome() {
         </div>
       )}
 
-      {/* ================= DOCTOR DATABASE ================= */}
       {page === "doctors" && (
         <div className="db-page">
           <div className="verify-header">
@@ -178,10 +177,7 @@ export default function AdminHome() {
                   <td>
                     <button
                       onClick={() =>
-                        window.open(
-                          `http://localhost:3000/uploads/${d.doctor_image}`,
-                          "_blank"
-                        )
+                        window.open(`${API}/uploads/${d.doctor_image}`, "_blank")
                       }
                     >
                       View
@@ -190,10 +186,7 @@ export default function AdminHome() {
                   <td>
                     <button
                       onClick={() =>
-                        window.open(
-                          `http://localhost:3000/uploads/${d.hospital_image}`,
-                          "_blank"
-                        )
+                        window.open(`${API}/uploads/${d.hospital_image}`, "_blank")
                       }
                     >
                       View
@@ -206,7 +199,6 @@ export default function AdminHome() {
         </div>
       )}
 
-      {/* ================= CUSTOMER DATABASE ================= */}
       {page === "customers" && (
         <div className="db-page">
           <div className="verify-header">
@@ -259,13 +251,12 @@ export default function AdminHome() {
         </div>
       )}
 
-      {/* ================= MODAL ================= */}
       {selectedDoctor && (
         <div className="modal-overlay">
           <div className="modal-box animate-pop">
             <div className="modal-image-wrap">
               <img
-                src={`http://localhost:3000/uploads/${selectedDoctor.doctor_image}`}
+                src={`${API}/uploads/${selectedDoctor.doctor_image}`}
                 alt="Doctor"
               />
             </div>
@@ -296,7 +287,7 @@ export default function AdminHome() {
                 className="hospital-link"
                 onClick={() =>
                   window.open(
-                    `http://localhost:3000/uploads/${selectedDoctor.hospital_image}`,
+                    `${API}/uploads/${selectedDoctor.hospital_image}`,
                     "_blank"
                   )
                 }
@@ -306,47 +297,46 @@ export default function AdminHome() {
             </div>
 
             <div className="modal-actions">
-  <button
-    className="verify-btn"
-    onClick={async () => {
-      await fetch(
-        `http://localhost:3000/admin/doctors/verify/${selectedDoctor.id}`,
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
+              <button
+                className="verify-btn"
+                onClick={async () => {
+                  await fetch(
+                    `${API}/admin/doctors/verify/${selectedDoctor.id}`,
+                    {
+                      method: "POST",
+                      credentials: "include",
+                    }
+                  );
 
-      setSelectedDoctor(null);
-      setPendingDoctors((prev) =>
-        prev.filter((d) => d.id !== selectedDoctor.id)
-      );
-    }}
-  >
-    Verify Doctor
-  </button>
+                  setSelectedDoctor(null);
+                  setPendingDoctors((prev) =>
+                    prev.filter((d) => d.id !== selectedDoctor.id)
+                  );
+                }}
+              >
+                Verify Doctor
+              </button>
 
-  <button
-    className="reject-btn"
-    onClick={async () => {
-      await fetch(
-        `http://localhost:3000/admin/doctors/reject/${selectedDoctor.id}`,
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
+              <button
+                className="reject-btn"
+                onClick={async () => {
+                  await fetch(
+                    `${API}/admin/doctors/reject/${selectedDoctor.id}`,
+                    {
+                      method: "POST",
+                      credentials: "include",
+                    }
+                  );
 
-      setSelectedDoctor(null);
-      setPendingDoctors((prev) =>
-        prev.filter((d) => d.id !== selectedDoctor.id)
-      );
-    }}
-  >
-    Reject Doctor
-  </button>
-</div>
-
+                  setSelectedDoctor(null);
+                  setPendingDoctors((prev) =>
+                    prev.filter((d) => d.id !== selectedDoctor.id)
+                  );
+                }}
+              >
+                Reject Doctor
+              </button>
+            </div>
 
             <button className="close-btn" onClick={() => setSelectedDoctor(null)}>
               Close

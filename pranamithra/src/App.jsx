@@ -20,6 +20,9 @@ import Profile from "./components/Profile";
 
 import "./App.css";
 
+/* ===== LOCALHOST BACKEND ===== */
+const API = "http://localhost:3000";
+
 export default function App() {
 
   const [sideOpen, setSideOpen] = useState(false);
@@ -36,7 +39,7 @@ export default function App() {
   /* ================= SESSION CHECK ================= */
 
   useEffect(() => {
-    fetch("http://localhost:3000/me", {
+    fetch(`${API}/me`, {
       credentials: "include"
     })
       .then(res => (res.ok ? res.json() : null))
@@ -62,7 +65,7 @@ export default function App() {
     );
   }, []);
 
-  /* ================= NAVIGATION FUNCTIONS ================= */
+  /* ================= NAVIGATION ================= */
 
   const pushHistory = (newState) => {
     window.history.pushState(newState, "", "");
@@ -100,7 +103,7 @@ export default function App() {
     setShowProfile(true);
   };
 
-  /* ================= HANDLE BACK / FORWARD ================= */
+  /* ================= BACK / FORWARD ================= */
 
   useEffect(() => {
 
@@ -128,8 +131,6 @@ export default function App() {
     };
 
   }, []);
-
-  /* ================= LOADING ================= */
 
   if (loading) {
     return <div style={{ padding: 40 }}>Loading...</div>;
@@ -160,16 +161,17 @@ export default function App() {
             setAuth({ type: "Register", role: "doctor" })
           }
           onLogout={async () => {
-            await fetch("http://localhost:3000/logout", {
-              method: "POST",
-              credentials: "include"
-            });
+  await fetch(`${API}/logout`, {
+    method: "POST",
+    credentials: "include"
+  });
 
-            setUser(null);
-            setDoctorPage("home");
-            setCustomerPage("home");
-            setShowProfile(false);
-          }}
+  setSideOpen(false);   // 🔥 CLOSE SIDEBAR FIRST
+  setUser(null);
+  setDoctorPage("home");
+  setCustomerPage("home");
+  setShowProfile(false);
+}}
         />
       )}
 
@@ -178,16 +180,16 @@ export default function App() {
           type={auth.type}
           role={auth.role}
           onClose={() => setAuth(null)}
-          onSuccess={(data) => {
-            setUser(data);
-            setAuth(null);
-          }}
+         onSuccess={(data) => {
+  setUser(data);
+  setAuth(null);
+  setSideOpen(false);   // 🔥 CLOSE SIDEBAR AFTER LOGIN
+}}
         />
       )}
 
       {!showProfile && !user && <Home />}
 
-      {/* CUSTOMER */}
       {user?.role === "customer" && !showProfile && (
         <>
           {customerPage === "home" && (
@@ -216,14 +218,11 @@ export default function App() {
           )}
 
           {customerPage === "mybookings" && (
-            <MyBookings
-              goBack={() => window.history.back()}
-            />
+            <MyBookings goBack={() => window.history.back()} />
           )}
         </>
       )}
 
-      {/* DOCTOR */}
       {user?.role === "doctor" && !showProfile && (
         <>
           {doctorPage === "home" && (
@@ -264,10 +263,8 @@ export default function App() {
         </>
       )}
 
-      {/* ADMIN */}
       {user?.role === "admin" && !showProfile && <AdminHome />}
 
-      {/* PROFILE */}
       {showProfile && (
         <Profile
           user={user}

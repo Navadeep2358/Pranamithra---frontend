@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "./ScheduleDay.css";
 
+const API = "/api";
+
 export default function ScheduleDay({ user, goBack }) {
 
   const [scheduleDate, setScheduleDate] = useState("");
@@ -116,7 +118,7 @@ export default function ScheduleDay({ user, goBack }) {
       setLoading(true);
 
       const res = await fetch(
-        "http://localhost:3000/doctor/schedule",
+        `${API}/doctor/schedule`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -151,7 +153,6 @@ export default function ScheduleDay({ user, goBack }) {
   return (
     <div className="schedule-page">
 
-      {/* ✅ POPUP */}
       {popup && (
         <div className={`auth-popup ${popup.type} ${fadeOut ? "fade-out" : ""}`}>
           <div className="popup-icon">
@@ -181,7 +182,6 @@ export default function ScheduleDay({ user, goBack }) {
 
         <h1>Schedule Next 2 Days</h1>
 
-        {/* DATE */}
         <div className="input-group">
           <label>Select Date</label>
           <select
@@ -197,7 +197,6 @@ export default function ScheduleDay({ user, goBack }) {
           </select>
         </div>
 
-        {/* LOGIN */}
         <div className="input-group">
           <label>Login Time</label>
           <input
@@ -207,7 +206,6 @@ export default function ScheduleDay({ user, goBack }) {
           />
         </div>
 
-        {/* LOGOUT */}
         <div className="input-group">
           <label>Logout Time</label>
           <input
@@ -217,7 +215,6 @@ export default function ScheduleDay({ user, goBack }) {
           />
         </div>
 
-        {/* DURATION */}
         <div className="input-group">
           <label>Duration</label>
           <select

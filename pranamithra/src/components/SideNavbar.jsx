@@ -67,9 +67,15 @@ export default function SideNavbar({
               </div>
 
               <div className="bottom-card">
-                <div className="menu-card danger" onClick={onLogout}>
-                  <h4>Logout</h4>
-                </div>
+                <div
+  className="menu-card danger"
+  onClick={() => {
+    onClose();      // 1️⃣ Close sidebar
+    onLogout();     // 2️⃣ Then logout
+  }}
+>
+  <h4>Logout</h4>
+</div>
               </div>
             </>
           )}

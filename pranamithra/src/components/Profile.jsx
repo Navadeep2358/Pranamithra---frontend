@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import "./Profile.css";
 
+/* ===== LOCALHOST BACKEND ===== */
+const API = "http://localhost:3000";
+
 export default function Profile({ goBack }) {
 
   const [data, setData] = useState({});
   const [editMode, setEditMode] = useState(false);
 
-  /* 🔐 Password States */
   const [showPasswordBox, setShowPasswordBox] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -14,7 +16,6 @@ export default function Profile({ goBack }) {
     confirmPassword: ""
   });
 
-  /* 🔥 GLOBAL TOAST */
   const [popup, setPopup] = useState(null);
   const [fadeOut, setFadeOut] = useState(false);
 
@@ -31,7 +32,7 @@ export default function Profile({ goBack }) {
 
   /* ================= LOAD PROFILE ================= */
   useEffect(() => {
-    fetch("http://localhost:3000/profile", {
+    fetch(`${API}/profile`, {
       credentials: "include"
     })
       .then(res => res.json())
@@ -63,7 +64,7 @@ export default function Profile({ goBack }) {
 
       if (data.role === "customer") {
 
-        await fetch("http://localhost:3000/profile", {
+        await fetch(`${API}/profile`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -77,7 +78,7 @@ export default function Profile({ goBack }) {
           formData.append(key, data[key]);
         });
 
-        await fetch("http://localhost:3000/profile", {
+        await fetch(`${API}/profile`, {
           method: "PUT",
           credentials: "include",
           body: formData
@@ -87,7 +88,7 @@ export default function Profile({ goBack }) {
       showPopup("Profile Updated Successfully", "success");
       setEditMode(false);
 
-      const res = await fetch("http://localhost:3000/profile", {
+      const res = await fetch(`${API}/profile`, {
         credentials: "include"
       });
 
@@ -110,7 +111,7 @@ export default function Profile({ goBack }) {
 
     try {
 
-      const res = await fetch("http://localhost:3000/change-password", {
+      const res = await fetch(`${API}/change-password`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -143,8 +144,6 @@ export default function Profile({ goBack }) {
     }
   };
 
-  /* ================= UI ================= */
-
   return (
     <div className="profile-wrapper">
 
@@ -154,12 +153,11 @@ export default function Profile({ goBack }) {
         </div>
       )}
 
-      {/* ================= LEFT PANEL ================= */}
       <div className="profile-left">
 
         {data.doctor_image ? (
           <img
-            src={`http://localhost:3000/uploads/${data.doctor_image}`}
+            src={`${API}/uploads/${data.doctor_image}`}
             alt="Doctor"
             className="profile-image"
           />
@@ -176,12 +174,12 @@ export default function Profile({ goBack }) {
         {data.role === "doctor" && (
           <>
             <p><strong>Hospital:</strong> {data.hospital_name}</p>
-            <p><strong>Hospital Address:</strong> {data.hospital_address}</p> {/* ✅ NEW */}
+            <p><strong>Hospital Address:</strong> {data.hospital_address}</p>
             <p><strong>Experience:</strong> {data.experience || 0} Years</p>
 
             {data.hospital_image && (
               <img
-                src={`http://localhost:3000/uploads/${data.hospital_image}`}
+                src={`${API}/uploads/${data.hospital_image}`}
                 alt="Hospital"
                 className="hospital-image"
               />
@@ -190,7 +188,6 @@ export default function Profile({ goBack }) {
         )}
       </div>
 
-      {/* ================= RIGHT PANEL ================= */}
       <div className="profile-right">
 
         <div className="profile-header">
@@ -284,7 +281,6 @@ export default function Profile({ goBack }) {
                 />
               </div>
 
-              {/* ✅ NEW HOSPITAL ADDRESS FIELD */}
               <div className="full-width">
                 <label>Hospital Address</label>
                 <input

@@ -1,53 +1,58 @@
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import "./AppointmentCost.css"
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import "./AppointmentCost.css";
+
+/* ===== LOCALHOST BACKEND ===== */
+const API = "http://localhost:3000";
 
 export default function AppointmentCost({ user, goBack }) {
 
-  const [cost10, setCost10] = useState("")
-  const [cost20, setCost20] = useState("")
-  const [cost30, setCost30] = useState("")
-  const [message, setMessage] = useState("")
+  const [cost10, setCost10] = useState("");
+  const [cost20, setCost20] = useState("");
+  const [cost30, setCost30] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetch(`http://localhost:3000/doctor/appointment-cost/${user.id}`, {
+    fetch(`${API}/doctor/appointment-cost/${user.id}`, {
       credentials: "include"
     })
       .then(res => res.json())
       .then(data => {
         if (data) {
-          setCost10(data.cost_10 || "")
-          setCost20(data.cost_20 || "")
-          setCost30(data.cost_30 || "")
+          setCost10(data.cost_10 || "");
+          setCost20(data.cost_20 || "");
+          setCost30(data.cost_30 || "");
         }
       })
-  }, [user.id])
+      .catch(err => console.error(err));
+  }, [user.id]);
 
   const handleSave = async () => {
-  try {
-    const res = await fetch(
-      "http://localhost:3000/doctor/appointment-cost",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",   // 🔥 VERY IMPORTANT
-        body: JSON.stringify({
-          cost10,
-          cost20,
-          cost30,
-        }),
-      }
-    );
+    try {
+      const res = await fetch(
+        `${API}/doctor/appointment-cost`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            cost10,
+            cost20,
+            cost30,
+          }),
+        }
+      );
 
-    const text = await res.text();
-    setMessage(text);
-  } catch (err) {
-    console.error(err);
-  }
-};
+      const text = await res.text();
+      setMessage(text);
 
+    } catch (err) {
+      console.error(err);
+      setMessage("Error saving costs");
+    }
+  };
 
   return (
     <motion.div
@@ -97,5 +102,5 @@ export default function AppointmentCost({ user, goBack }) {
       </div>
 
     </motion.div>
-  )
+  );
 }

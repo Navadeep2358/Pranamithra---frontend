@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import "./MySchedules.css";
 
+/* ===== LOCALHOST BACKEND ===== */
+const API = "http://localhost:3000";
+
 export default function MySchedules({ user, goBack }) {
 
   const [schedules, setSchedules] = useState([]);
@@ -15,21 +18,19 @@ export default function MySchedules({ user, goBack }) {
     const fetchSchedules = async () => {
       try {
         const res = await fetch(
-          "http://localhost:3000/doctor/my-schedules",
+          `${API}/doctor/my-schedules`,
           { credentials: "include" }
         );
 
         if (res.ok) {
           const data = await res.json();
 
-          // 🔥 Hide past schedules here
-        const today = new Date().toISOString().split("T")[0];
+          const today = new Date().toISOString().split("T")[0];
 
-const filtered = data.filter(schedule => {
-  return schedule.schedule_date >= today;
-});
+          const filtered = data.filter(schedule => {
+            return schedule.schedule_date >= today;
+          });
 
-          // 🔥 Ensure available_slots is array
           const formatted = filtered.map(schedule => ({
             ...schedule,
             available_slots:
@@ -49,7 +50,7 @@ const filtered = data.filter(schedule => {
     const fetchCost = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/doctor/appointment-cost/${user.id}`,
+          `${API}/doctor/appointment-cost/${user.id}`,
           { credentials: "include" }
         );
 
@@ -63,9 +64,14 @@ const filtered = data.filter(schedule => {
       }
     };
 
-    fetchSchedules();
-    fetchCost();
-    setLoading(false);
+    const loadData = async () => {
+      setLoading(true);
+      await fetchSchedules();
+      await fetchCost();
+      setLoading(false);
+    };
+
+    loadData();
 
   }, [user]);
 
@@ -103,14 +109,12 @@ const filtered = data.filter(schedule => {
           transition={{ duration: 0.5 }}
         >
 
-          {/* DATE */}
           <div className="schedule-date">
             <h2>
               {new Date(schedule.schedule_date).toDateString()}
             </h2>
           </div>
 
-          {/* WORKING HOURS */}
           <div className="schedule-time">
             <h3>Working Hours</h3>
             <p>
@@ -118,7 +122,6 @@ const filtered = data.filter(schedule => {
             </p>
           </div>
 
-          {/* COST */}
           {costDetails && (
             <div className="appointment-cost-display">
               <h3>Appointment Costs</h3>
@@ -142,7 +145,6 @@ const filtered = data.filter(schedule => {
             </div>
           )}
 
-          {/* SLOTS */}
           <div className="schedule-slots">
             <h3>Available Slots</h3>
 

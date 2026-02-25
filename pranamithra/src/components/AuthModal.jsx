@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import "./AuthModal.css";
 
+/* ===== LOCALHOST BACKEND ===== */
+const API = "http://localhost:3000";
+
 export default function AuthModal({ type, role, onClose, onSuccess }) {
 
   const [fullName, setFullName] = useState("");
@@ -15,7 +18,7 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
   const [gender, setGender] = useState("");
 
   const [hospitalName, setHospitalName] = useState("");
-  const [hospitalAddress, setHospitalAddress] = useState(""); // ✅ NEW
+  const [hospitalAddress, setHospitalAddress] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [experience, setExperience] = useState("");
   const [doctorImage, setDoctorImage] = useState(null);
@@ -47,7 +50,7 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
     const loginRole =
       email === "admin@gmail.com" ? "admin" : role;
 
-    const res = await fetch("http://localhost:3000/login", {
+    const res = await fetch(`${API}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -74,9 +77,10 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
     // CUSTOMER REGISTER
     if (role === "customer") {
 
-      const res = await fetch("http://localhost:3000/customer/register", {
+      const res = await fetch(`${API}/customer/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           fullName,
           phone,
@@ -106,14 +110,15 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
     fd.append("email", email);
     fd.append("password", password);
     fd.append("hospitalName", hospitalName);
-    fd.append("hospitalAddress", hospitalAddress); // ✅ NEW
+    fd.append("hospitalAddress", hospitalAddress);
     fd.append("specialization", specialization);
     fd.append("experience", experience);
     fd.append("doctorImage", doctorImage);
     fd.append("hospitalImage", hospitalImage);
 
-    const res = await fetch("http://localhost:3000/doctor/register", {
+    const res = await fetch(`${API}/doctor/register`, {
       method: "POST",
+      credentials: "include",
       body: fd
     });
 
@@ -194,8 +199,6 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
               <input placeholder="Phone Number" onChange={e => setPhone(e.target.value)} />
               <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
               <input placeholder="Hospital Name" onChange={e => setHospitalName(e.target.value)} />
-
-              {/* ✅ NEW HOSPITAL ADDRESS FIELD */}
               <input
                 placeholder="Hospital Address"
                 onChange={e => setHospitalAddress(e.target.value)}

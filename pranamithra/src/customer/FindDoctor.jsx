@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import "./FindDoctor.css";
 
+/* ===== LOCALHOST BACKEND ===== */
+const API = "http://localhost:3000";
+
 export default function FindDoctor({ goBack, openAppointment }) {
 
   const [doctors, setDoctors] = useState([]);
@@ -12,7 +15,7 @@ export default function FindDoctor({ goBack, openAppointment }) {
     const fetchDoctors = async () => {
       try {
         const res = await fetch(
-          "http://localhost:3000/customer/doctors",
+          `${API}/customer/doctors`,
           { credentials: "include" }
         );
 
@@ -116,7 +119,7 @@ export default function FindDoctor({ goBack, openAppointment }) {
                 <img
                   src={
                     doc.doctor_image
-                      ? `http://localhost:3000/uploads/${doc.doctor_image}`
+                      ? `${API}/uploads/${doc.doctor_image}`
                       : "https://via.placeholder.com/140"
                   }
                   alt={doc.full_name}

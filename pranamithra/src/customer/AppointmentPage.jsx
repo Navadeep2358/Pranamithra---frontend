@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import "./AppointmentPage.css";
 
+/* ===== LOCALHOST BACKEND ===== */
+const API = "http://localhost:3000";
 
 export default function AppointmentPage({ doctorId, goBack }) {
 
@@ -18,7 +20,6 @@ export default function AppointmentPage({ doctorId, goBack }) {
 
   const [loading, setLoading] = useState(true);
 
-  /* ================= POPUP ================= */
   const [popup, setPopup] = useState(null);
   const [fadeOut, setFadeOut] = useState(false);
 
@@ -40,14 +41,14 @@ export default function AppointmentPage({ doctorId, goBack }) {
     const fetchData = async () => {
       try {
         const doctorRes = await fetch(
-          `http://localhost:3000/customer/doctor/${doctorId}`,
+          `${API}/customer/doctor/${doctorId}`,
           { credentials: "include" }
         );
         const doctorData = await doctorRes.json();
         setDoctor(doctorData);
 
         const costRes = await fetch(
-          `http://localhost:3000/doctor/appointment-cost/${doctorId}`,
+          `${API}/doctor/appointment-cost/${doctorId}`,
           { credentials: "include" }
         );
         const costData = await costRes.json();
@@ -87,7 +88,7 @@ export default function AppointmentPage({ doctorId, goBack }) {
     if (!selectedDate) return;
 
     fetch(
-      `http://localhost:3000/doctor/available-slots?doctorId=${doctorId}&date=${selectedDate}`,
+      `${API}/doctor/available-slots?doctorId=${doctorId}&date=${selectedDate}`,
       { credentials: "include" }
     )
       .then(res => res.json())
@@ -106,20 +107,29 @@ export default function AppointmentPage({ doctorId, goBack }) {
 
   /* ================= GET SLOT DURATION ================= */
   const getDurationFromSlot = (slotString) => {
+    if (!slotString) return 0;
+
     const parts = slotString.split(" - ");
     if (parts.length !== 2) return 0;
 
     const parseTime = (timeStr) => {
-      const [time, modifier] = timeStr.split(" ");
-      let [hours, minutes] = time.split(":");
+      if (!timeStr) return 0;
 
+      const pieces = timeStr.trim().split(" ");
+      const time = pieces[0];
+      const modifier = pieces[1] || "";
+
+      let [hours, minutes] = time.split(":");
       hours = parseInt(hours);
       minutes = parseInt(minutes);
 
-      if (modifier.toLowerCase() === "pm" && hours !== 12) hours += 12;
-      if (modifier.toLowerCase() === "am" && hours === 12) hours = 0;
+      if (!isNaN(hours) && !isNaN(minutes)) {
+        if (modifier.toLowerCase() === "pm" && hours !== 12) hours += 12;
+        if (modifier.toLowerCase() === "am" && hours === 12) hours = 0;
+        return hours * 60 + minutes;
+      }
 
-      return hours * 60 + minutes;
+      return 0;
     };
 
     return parseTime(parts[1]) - parseTime(parts[0]);
@@ -155,7 +165,7 @@ export default function AppointmentPage({ doctorId, goBack }) {
 
     const duration = getDurationFromSlot(selectedSlot);
 
-    const res = await fetch("http://localhost:3000/book-appointment", {
+    const res = await fetch(`${API}/book-appointment`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -184,6 +194,7 @@ export default function AppointmentPage({ doctorId, goBack }) {
 
   if (loading) return <p style={{ padding: 40 }}>Loading...</p>;
   if (!doctor) return <p style={{ padding: 40 }}>Doctor not found</p>;
+
 
   return (
     <div className="appointment-wrapper">
@@ -220,7 +231,7 @@ export default function AppointmentPage({ doctorId, goBack }) {
         {/* LEFT PANEL */}
         <div className="doctor-panel">
           <img
-            src={`http://localhost:3000/uploads/${doctor.doctor_image}`}
+            src={`${API}/uploads/${doctor.doctor_image}`}
             className="doctor-image"
             alt="Doctor"
           />

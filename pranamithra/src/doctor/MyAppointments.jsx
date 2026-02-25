@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./MyAppointments.css";
 
+/* ===== LOCALHOST BACKEND ===== */
+const API = "http://localhost:3000";
+
 export default function MyAppointments({ goBack }) {
 
   const getNextThreeDays = () => {
@@ -28,7 +31,7 @@ export default function MyAppointments({ goBack }) {
       setLoading(true);
 
       const res = await axios.get(
-        `http://localhost:3000/doctor/dashboard?date=${selectedDate}`,
+        `${API}/doctor/dashboard?date=${selectedDate}`,
         { withCredentials: true }
       );
 
@@ -113,7 +116,7 @@ export default function MyAppointments({ goBack }) {
 
       {/* BOOKED */}
       <div className="section">
-        <h3>Booked Appointments</h3><br></br>
+        <h3>Booked Appointments</h3><br />
 
         {loading ? (
           <p className="empty-text">Loading...</p>
@@ -149,7 +152,7 @@ export default function MyAppointments({ goBack }) {
             className="premium-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3>Appointment Details</h3><br></br>
+            <h3>Appointment Details</h3><br />
 
             <div className="modal-grid">
               <div>

@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import "./AppointmentLetter.css";
 
+/* ===== LOCALHOST BACKEND ===== */
+const API = "http://localhost:3000";
+
 export default function AppointmentLetter({ booking, close }) {
 
   const [qrImage, setQrImage] = useState("");
@@ -9,7 +12,7 @@ export default function AppointmentLetter({ booking, close }) {
   useEffect(() => {
     if (booking?.qr_token) {
       QRCode.toDataURL(
-        `http://localhost:3000/verify/${booking.qr_token}`
+        `${API}/verify/${booking.qr_token}`
       ).then(url => setQrImage(url));
     }
   }, [booking]);

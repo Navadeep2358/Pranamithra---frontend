@@ -4,6 +4,9 @@ import QRCode from "qrcode";
 import AppointmentLetter from "./AppointmentLetter";
 import "./MyBookings.css";
 
+/* ===== LOCALHOST BACKEND ===== */
+const API = "http://localhost:3000";
+
 export default function MyBookings({ goBack }) {
 
   const [bookings, setBookings] = useState([]);
@@ -11,7 +14,7 @@ export default function MyBookings({ goBack }) {
 
   /* ================= FETCH BOOKINGS ================= */
   useEffect(() => {
-    fetch("http://localhost:3000/appointments/my", {
+    fetch(`${API}/appointments/my`, {
       credentials: "include"
     })
       .then(res => res.json())
@@ -21,7 +24,7 @@ export default function MyBookings({ goBack }) {
 
   /* ================= FETCH FULL DETAILS ================= */
   const fetchFullBooking = async (id) => {
-    const res = await fetch(`http://localhost:3000/appointment/${id}`, {
+    const res = await fetch(`${API}/appointment/${id}`, {
       credentials: "include"
     });
     return await res.json();
@@ -42,11 +45,9 @@ export default function MyBookings({ goBack }) {
       const doc = new jsPDF("p", "mm", "a4");
       const pageWidth = doc.internal.pageSize.getWidth();
 
-      /* ===== Page Border ===== */
       doc.setDrawColor(200);
       doc.rect(10, 10, pageWidth - 20, 277);
 
-      /* ===== Header ===== */
       doc.setFont("helvetica", "bold");
       doc.setFontSize(20);
       doc.text("Pranamithra Hospital", pageWidth / 2, 25, { align: "center" });
@@ -59,25 +60,20 @@ export default function MyBookings({ goBack }) {
 
       let y = 50;
 
-      /* ===== Section Title ===== */
       const sectionTitle = (title) => {
         doc.setFillColor(240, 242, 255);
         doc.rect(20, y - 6, pageWidth - 40, 8, "F");
-
         doc.setFont("helvetica", "bold");
         doc.setFontSize(13);
         doc.text(title, 25, y);
         y += 12;
       };
 
-      /* ===== Row Helper ===== */
       const row = (label, value) => {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(12);
-
         doc.text(label, 25, y);
         doc.text(String(value || "-"), 110, y);
-
         y += 8;
       };
 
@@ -112,7 +108,7 @@ export default function MyBookings({ goBack }) {
       if (booking.qr_token) {
 
         const qrImage = await QRCode.toDataURL(
-          `http://localhost:3000/verify/${booking.qr_token}`
+          `${API}/verify/${booking.qr_token}`
         );
 
         doc.addImage(qrImage, "PNG", pageWidth / 2 - 25, y + 10, 50, 50);
@@ -144,7 +140,6 @@ export default function MyBookings({ goBack }) {
     }
   };
 
-  /* ================= FORMAT DATE ================= */
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-IN", {
       day: "2-digit",

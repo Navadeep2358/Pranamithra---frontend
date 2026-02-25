@@ -1,5 +1,8 @@
 import "./TopNavbar.css";
 
+/* ===== LOCALHOST BACKEND ===== */
+const API = "http://localhost:3000";
+
 export default function TopNavbar({ onMenu, onLogin, onRegister, user }) {
   return (
     <header className="top-navbar">
@@ -20,7 +23,7 @@ export default function TopNavbar({ onMenu, onLogin, onRegister, user }) {
         {/* DOCTOR */}
         {user && user.role === "doctor" && (
           <img
-            src={`http://localhost:3000/uploads/${user.image}`}
+            src={`${API}/uploads/${user.image}`}
             alt="Doctor"
             className="profile-pic"
             onClick={onMenu}
