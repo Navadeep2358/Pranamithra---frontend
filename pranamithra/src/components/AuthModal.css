@@ -143,3 +143,35 @@ textarea {
   from { transform: scale(0.85); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+/* ================= SWITCH LOGIN / REGISTER ================= */
+
+.switch-link {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.switch-link span {
+  color: #2563eb;              /* Nice modern blue */
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 4px;
+  transition: all 0.25s ease;
+}
+
+.switch-link span:hover {
+  color: #1e40af;              /* Darker blue on hover */
+  text-decoration: underline;
+}
+
+.switch-link span:active {
+  transform: scale(0.95);
+}
+
+/* Optional smooth fade */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

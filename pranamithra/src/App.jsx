@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import TopNavbar from "./components/TopNavbar";
 import SideNavbar from "./components/SideNavbar";
 import Home from "./components/Home";
@@ -18,9 +19,11 @@ import AdminHome from "./admin/AdminHome";
 import AuthModal from "./components/AuthModal";
 import Profile from "./components/Profile";
 
+import BotMithra from "./chatbot/BotMithra";
+import HeartLoader from "./components/HeartLoader";
+
 import "./App.css";
 
-/* ===== LOCALHOST BACKEND ===== */
 const API = "http://localhost:3000";
 
 export default function App() {
@@ -29,16 +32,61 @@ export default function App() {
   const [auth, setAuth] = useState(null);
   const [user, setUser] = useState(null);
   const [theme, setTheme] = useState("light");
+
   const [loading, setLoading] = useState(true);
+
+  /* GLOBAL ACTION LOADER */
+  const [actionLoading, setActionLoading] = useState(false);
+
   const [showProfile, setShowProfile] = useState(false);
 
   const [doctorPage, setDoctorPage] = useState("home");
   const [customerPage, setCustomerPage] = useState("home");
+
   const [selectedDoctorId, setSelectedDoctorId] = useState(null);
+
+  /* ================= BOT AUTH LISTENER ================= */
+
+  useEffect(() => {
+
+    const handleOpenAuth = (event) => {
+      setAuth(event.detail);
+    };
+
+    window.addEventListener("open-auth-modal", handleOpenAuth);
+
+    return () => {
+      window.removeEventListener("open-auth-modal", handleOpenAuth);
+    };
+
+  }, []);
+
+  /* ================= BOT NAVIGATION ================= */
+
+  useEffect(() => {
+
+    const handleGoToAppointments = () => {
+      navigateDoctor("appointments");
+    };
+
+    window.addEventListener(
+      "go-to-doctor-appointments",
+      handleGoToAppointments
+    );
+
+    return () => {
+      window.removeEventListener(
+        "go-to-doctor-appointments",
+        handleGoToAppointments
+      );
+    };
+
+  }, []);
 
   /* ================= SESSION CHECK ================= */
 
   useEffect(() => {
+
     fetch(`${API}/me`, {
       credentials: "include"
     })
@@ -48,11 +96,13 @@ export default function App() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+
   }, []);
 
   /* ================= INITIAL HISTORY ================= */
 
   useEffect(() => {
+
     window.history.replaceState(
       {
         role: null,
@@ -63,6 +113,7 @@ export default function App() {
       "",
       window.location.href
     );
+
   }, []);
 
   /* ================= NAVIGATION ================= */
@@ -72,38 +123,44 @@ export default function App() {
   };
 
   const navigateCustomer = (page) => {
+
     pushHistory({
       role: "customer",
       customerPage: page,
       doctorPage,
       showProfile: false
     });
+
     setCustomerPage(page);
     setShowProfile(false);
   };
 
   const navigateDoctor = (page) => {
+
     pushHistory({
       role: "doctor",
       doctorPage: page,
       customerPage,
       showProfile: false
     });
+
     setDoctorPage(page);
     setShowProfile(false);
   };
 
   const navigateProfile = () => {
+
     pushHistory({
       role: user?.role,
       doctorPage,
       customerPage,
       showProfile: true
     });
+
     setShowProfile(true);
   };
 
-  /* ================= BACK / FORWARD ================= */
+  /* ================= BACK BUTTON ================= */
 
   useEffect(() => {
 
@@ -132,12 +189,18 @@ export default function App() {
 
   }, []);
 
+  /* ================= INITIAL APP LOADER ================= */
+
   if (loading) {
-    return <div style={{ padding: 40 }}>Loading...</div>;
+    return <HeartLoader />;
   }
 
   return (
+
     <div className={`app ${theme}`}>
+
+      {/* GLOBAL ACTION LOADER */}
+      {actionLoading && <HeartLoader />}
 
       <TopNavbar
         onMenu={() => setSideOpen(true)}
@@ -147,131 +210,202 @@ export default function App() {
       />
 
       {sideOpen && (
+
         <SideNavbar
           onClose={() => setSideOpen(false)}
           user={user}
           setTheme={setTheme}
           setShowProfile={navigateProfile}
+
           setShowMySchedules={() => navigateDoctor("myschedules")}
           setShowMyAppointments={() => navigateDoctor("appointments")}
           setShowAppointmentCost={() => navigateDoctor("appointmentcost")}
           setShowMyBookings={() => navigateCustomer("mybookings")}
-          onDoctorLogin={() => setAuth({ type: "Login", role: "doctor" })}
+
+          onDoctorLogin={() =>
+            setAuth({ type: "Login", role: "doctor" })
+          }
+
           onDoctorRegister={() =>
             setAuth({ type: "Register", role: "doctor" })
           }
-          onLogout={async () => {
-  await fetch(`${API}/logout`, {
-    method: "POST",
-    credentials: "include"
-  });
 
-  setSideOpen(false);   // 🔥 CLOSE SIDEBAR FIRST
-  setUser(null);
-  setDoctorPage("home");
-  setCustomerPage("home");
-  setShowProfile(false);
-}}
+          onLogout={async () => {
+
+            setActionLoading(true);
+
+            await fetch(`${API}/logout`, {
+              method: "POST",
+              credentials: "include"
+            });
+
+            setSideOpen(false);
+            setUser(null);
+
+            setDoctorPage("home");
+            setCustomerPage("home");
+
+            setShowProfile(false);
+
+            setActionLoading(false);
+          }}
+
         />
+
       )}
 
       {auth && (
+
         <AuthModal
-          type={auth.type}
-          role={auth.role}
-          onClose={() => setAuth(null)}
-         onSuccess={(data) => {
-  setUser(data);
-  setAuth(null);
-  setSideOpen(false);   // 🔥 CLOSE SIDEBAR AFTER LOGIN
-}}
-        />
+  type={auth.type}
+  role={auth.role}
+  onClose={() => setAuth(null)}
+  setActionLoading={setActionLoading}
+
+  onSuccess={(data) => {
+
+    setActionLoading(true);
+
+    setTimeout(() => {
+
+      setUser(data);
+      setAuth(null);
+      setSideOpen(false);
+
+      setActionLoading(false);
+
+    }, 800);
+
+  }}
+/>
       )}
 
       {!showProfile && !user && <Home />}
 
+      {/* CUSTOMER */}
+
       {user?.role === "customer" && !showProfile && (
+
         <>
+
           {customerPage === "home" && (
+
             <CustomerHome
               user={user}
               openBookAppointment={() => navigateCustomer("book")}
               openMyBookings={() => navigateCustomer("mybookings")}
             />
+
           )}
 
           {customerPage === "book" && (
+
             <FindDoctor
               goBack={() => window.history.back()}
               openAppointment={(doctorId) => {
+
                 setSelectedDoctorId(doctorId);
+
                 navigateCustomer("appointment");
+
               }}
             />
+
           )}
 
           {customerPage === "appointment" && (
+
             <AppointmentPage
               doctorId={selectedDoctorId}
               goBack={() => window.history.back()}
+              setActionLoading={setActionLoading}
             />
+
           )}
 
           {customerPage === "mybookings" && (
-            <MyBookings goBack={() => window.history.back()} />
+
+            <MyBookings
+              goBack={() => window.history.back()}
+            />
+
           )}
+
         </>
+
       )}
 
+      {/* DOCTOR */}
+
       {user?.role === "doctor" && !showProfile && (
+
         <>
+
           {doctorPage === "home" && (
+
             <DoctorHome
               user={user}
               openSchedule={() => navigateDoctor("schedule")}
               openAppointments={() => navigateDoctor("appointments")}
             />
+
           )}
 
           {doctorPage === "schedule" && (
+
             <ScheduleDay
               user={user}
               goBack={() => window.history.back()}
             />
+
           )}
 
           {doctorPage === "myschedules" && (
+
             <MySchedules
               user={user}
               goBack={() => window.history.back()}
             />
+
           )}
 
           {doctorPage === "appointmentcost" && (
+
             <AppointmentCost
               user={user}
               goBack={() => window.history.back()}
             />
+
           )}
 
           {doctorPage === "appointments" && (
+
             <MyAppointments
               doctor={user}
               goBack={() => window.history.back()}
             />
+
           )}
+
         </>
+
       )}
 
       {user?.role === "admin" && !showProfile && <AdminHome />}
 
       {showProfile && (
+
         <Profile
           user={user}
           goBack={() => window.history.back()}
+          setActionLoading={setActionLoading}
         />
+
       )}
 
+      <BotMithra user={user} />
+
     </div>
+
   );
 }

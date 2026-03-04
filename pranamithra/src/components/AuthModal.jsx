@@ -1,10 +1,15 @@
 import { useState, useEffect } from "react";
 import "./AuthModal.css";
 
-/* ===== LOCALHOST BACKEND ===== */
 const API = "http://localhost:3000";
 
-export default function AuthModal({ type, role, onClose, onSuccess }) {
+export default function AuthModal({ type, role, onClose, onSuccess, setActionLoading }) {
+
+  const [currentType, setCurrentType] = useState(type);
+
+  useEffect(() => {
+    setCurrentType(type);
+  }, [type]);
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -45,10 +50,19 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
   }, []);
 
   /* ================= LOGIN ================= */
-  const handleLogin = async () => {
 
-    const loginRole =
-      email === "admin@gmail.com" ? "admin" : role;
+ const handleLogin = async () => {
+
+  const loginRole =
+    email === "admin@gmail.com" ? "admin" : role;
+
+  // close modal
+  onClose();
+
+  // start loader
+  setActionLoading(true);
+
+  try {
 
     const res = await fetch(`${API}/login`, {
       method: "POST",
@@ -58,15 +72,34 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
     });
 
     if (res.ok) {
+
       const data = await res.json();
-      showPopup("Login Successful", "success");
-      setTimeout(() => onSuccess(data), 1200);
+
+      // set user immediately
+      onSuccess(data);
+
+      // keep loader visible for 3 seconds
+      setTimeout(() => {
+        setActionLoading(false);
+      }, 3000);
+
     } else {
-      showPopup("Invalid Credentials", "error");
+
+      setActionLoading(false);
+      alert("Invalid Credentials");
+
     }
-  };
+
+  } catch {
+
+    setActionLoading(false);
+    alert("Server Error");
+
+  }
+};
 
   /* ================= REGISTER ================= */
+
   const handleRegister = async () => {
 
     if (password !== confirmPassword) {
@@ -74,59 +107,84 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
       return;
     }
 
-    // CUSTOMER REGISTER
-    if (role === "customer") {
+    // close modal
+    onClose();
 
-      const res = await fetch(`${API}/customer/register`, {
+    // start loader
+    setActionLoading(true);
+
+    try {
+
+      if (role === "customer") {
+
+        const res = await fetch(`${API}/customer/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            fullName,
+            phone,
+            email,
+            password,
+            dob,
+            age,
+            address,
+            gender
+          })
+        });
+
+        if (res.ok) {
+
+          setTimeout(() => {
+            setActionLoading(false);
+          }, 900);
+
+        } else {
+
+          setActionLoading(false);
+          alert("Registration Failed");
+
+        }
+
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append("fullName", fullName);
+      fd.append("phone", phone);
+      fd.append("email", email);
+      fd.append("password", password);
+      fd.append("hospitalName", hospitalName);
+      fd.append("hospitalAddress", hospitalAddress);
+      fd.append("specialization", specialization);
+      fd.append("experience", experience);
+      fd.append("doctorImage", doctorImage);
+      fd.append("hospitalImage", hospitalImage);
+
+      const res = await fetch(`${API}/doctor/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          fullName,
-          phone,
-          email,
-          password,
-          dob,
-          age,
-          address,
-          gender
-        })
+        body: fd
       });
 
       if (res.ok) {
-        showPopup("Your Registration is Successful", "success");
-        setTimeout(() => onClose(), 1500);
+
+        setTimeout(() => {
+          setActionLoading(false);
+        }, 900);
+
       } else {
-        showPopup("Registration Failed", "error");
+
+        setActionLoading(false);
+        alert("Registration Failed");
+
       }
 
-      return;
-    }
+    } catch {
 
-    // DOCTOR REGISTER
-    const fd = new FormData();
-    fd.append("fullName", fullName);
-    fd.append("phone", phone);
-    fd.append("email", email);
-    fd.append("password", password);
-    fd.append("hospitalName", hospitalName);
-    fd.append("hospitalAddress", hospitalAddress);
-    fd.append("specialization", specialization);
-    fd.append("experience", experience);
-    fd.append("doctorImage", doctorImage);
-    fd.append("hospitalImage", hospitalImage);
+      setActionLoading(false);
+      alert("Server Error");
 
-    const res = await fetch(`${API}/doctor/register`, {
-      method: "POST",
-      credentials: "include",
-      body: fd
-    });
-
-    if (res.ok) {
-      showPopup("Your Registration is Successful", "success");
-      setTimeout(() => onClose(), 1500);
-    } else {
-      showPopup("Registration Failed", "error");
     }
   };
 
@@ -134,27 +192,12 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
     <div className="auth-overlay">
       <div className="auth-modal">
 
-        {popup && (
-          <div className={`auth-popup ${popup.type} ${fadeOut ? "fade-out" : ""}`}>
-            <div className="popup-icon">
-              {popup.type === "success" && "✓"}
-              {popup.type === "error" && "✕"}
-              {popup.type === "cancel" && "⚠"}
-            </div>
-            <div className="popup-text">
-              {popup.message}
-            </div>
-          </div>
-        )}
-
         <div className="auth-header">
-          <h2>{type} as {role}</h2>
+          <h2>{currentType} as {role}</h2>
+
           <button
             className="auth-close"
-            onClick={() => {
-              showPopup("Action Cancelled", "cancel");
-              setTimeout(() => onClose(), 800);
-            }}
+            onClick={onClose}
           >
             ✕
           </button>
@@ -162,14 +205,29 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
 
         <div className="auth-content">
 
-          {type === "Login" && (
+          {currentType === "Login" && (
             <>
-              <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
-              <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
+              <input
+                placeholder="Email"
+                onChange={e => setEmail(e.target.value)}
+              />
+
+              <input
+                type="password"
+                placeholder="Password"
+                onChange={e => setPassword(e.target.value)}
+              />
+
+              <div className="switch-link">
+                New user?
+                <span onClick={() => setCurrentType("Register")}>
+                  Register here
+                </span>
+              </div>
             </>
           )}
 
-          {type === "Register" && role === "customer" && (
+          {currentType === "Register" && role === "customer" && (
             <>
               <input placeholder="Full Name" onChange={e => setFullName(e.target.value)} />
               <input placeholder="Phone Number" onChange={e => setPhone(e.target.value)} />
@@ -190,19 +248,23 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
 
               <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
               <input type="password" placeholder="Confirm Password" onChange={e => setConfirmPassword(e.target.value)} />
+
+              <div className="switch-link">
+                Already have an account?
+                <span onClick={() => setCurrentType("Login")}>
+                  Login here
+                </span>
+              </div>
             </>
           )}
 
-          {type === "Register" && role === "doctor" && (
+          {currentType === "Register" && role === "doctor" && (
             <>
               <input placeholder="Doctor Name" onChange={e => setFullName(e.target.value)} />
               <input placeholder="Phone Number" onChange={e => setPhone(e.target.value)} />
               <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
               <input placeholder="Hospital Name" onChange={e => setHospitalName(e.target.value)} />
-              <input
-                placeholder="Hospital Address"
-                onChange={e => setHospitalAddress(e.target.value)}
-              />
+              <input placeholder="Hospital Address" onChange={e => setHospitalAddress(e.target.value)} />
 
               <select onChange={e => setSpecialization(e.target.value)}>
                 <option value="">Select Specialization</option>
@@ -211,27 +273,11 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
                 <option value="neurology">Neurology</option>
                 <option value="dentist">Dentist</option>
                 <option value="general">General Physician</option>
-                <option value="orthopedics">Orthopedics</option>
-                <option value="dermatology">Dermatology</option>
-                <option value="pediatrics">Pediatrics</option>
-                <option value="gynecology">Gynecology</option>
-                <option value="psychiatry">Psychiatry</option>
-                <option value="urology">Urology</option>
-                <option value="oncology">Oncology</option>
-                <option value="gastroenterology">Gastroenterology</option>
-                <option value="nephrology">Nephrology</option>
-                <option value="pulmonology">Pulmonology</option>
-                <option value="radiology">Radiology</option>
-                <option value="anesthesiology">Anesthesiology</option>
-                <option value="endocrinology">Endocrinology</option>
-                <option value="ophthalmology">Ophthalmology</option>
-                <option value="plastic_surgery">Plastic Surgery</option>
               </select>
 
               <input
                 type="number"
                 placeholder="Years of Experience"
-                min="0"
                 onChange={e => setExperience(e.target.value)}
               />
 
@@ -247,13 +293,23 @@ export default function AuthModal({ type, role, onClose, onSuccess }) {
 
               <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
               <input type="password" placeholder="Confirm Password" onChange={e => setConfirmPassword(e.target.value)} />
+
+              <div className="switch-link">
+                Already have an account?
+                <span onClick={() => setCurrentType("Login")}>
+                  Login here
+                </span>
+              </div>
             </>
           )}
 
         </div>
 
-        <button className="auth-btn" onClick={type === "Login" ? handleLogin : handleRegister}>
-          {type}
+        <button
+          className="auth-btn"
+          onClick={currentType === "Login" ? handleLogin : handleRegister}
+        >
+          {currentType}
         </button>
 
       </div>

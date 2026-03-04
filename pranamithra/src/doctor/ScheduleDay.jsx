@@ -1,9 +1,9 @@
 import { useState } from "react";
 import "./ScheduleDay.css";
 
-const API = "/api";
+const API = "http://localhost:3000";
 
-export default function ScheduleDay({ user, goBack }) {
+export default function ScheduleDay({ goBack }) {
 
   const [scheduleDate, setScheduleDate] = useState("");
   const [loginTime, setLoginTime] = useState("");
@@ -11,9 +11,8 @@ export default function ScheduleDay({ user, goBack }) {
   const [duration, setDuration] = useState(20);
   const [slots, setSlots] = useState([]);
   const [selectedSlots, setSelectedSlots] = useState([]);
-  const [loading, setLoading] = useState(false);
 
-  /* ================= POPUP ================= */
+  /* ✅ CUSTOM POPUP */
   const [popup, setPopup] = useState(null);
   const [fadeOut, setFadeOut] = useState(false);
 
@@ -21,38 +20,32 @@ export default function ScheduleDay({ user, goBack }) {
     setPopup({ message, type });
     setFadeOut(false);
 
-    setTimeout(() => setFadeOut(true), 4200);
+    setTimeout(() => setFadeOut(true), 2500);
     setTimeout(() => {
       setPopup(null);
       setFadeOut(false);
-    }, 5000);
+    }, 3000);
   };
 
   const GAP_MINUTES = 5;
 
-  /* ================= NEXT 2 DAYS ================= */
   const getNextTwoDays = () => {
     const today = new Date();
-
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
-
     const dayAfter = new Date(today);
     dayAfter.setDate(today.getDate() + 2);
 
-    const format = (date) =>
-      date.toISOString().split("T")[0];
-
+    const format = (date) => date.toISOString().split("T")[0];
     return [format(tomorrow), format(dayAfter)];
   };
 
   const allowedDates = getNextTwoDays();
 
-  /* ================= GENERATE SLOTS ================= */
   const generateSlots = () => {
 
     if (!scheduleDate || !loginTime || !logoutTime) {
-      showPopup("Select date and working hours", "error");
+      showPopup("Please select date and times", "error");
       return;
     }
 
@@ -71,7 +64,6 @@ export default function ScheduleDay({ user, goBack }) {
 
       let slotStart = new Date(current);
       let slotEnd = new Date(current);
-
       slotEnd.setMinutes(slotEnd.getMinutes() + duration);
 
       if (slotEnd > end) break;
@@ -91,9 +83,7 @@ export default function ScheduleDay({ user, goBack }) {
     setSelectedSlots([]);
   };
 
-  /* ================= TOGGLE SLOT ================= */
   const toggleSlot = (slot) => {
-
     if (selectedSlots.includes(slot)) {
       setSelectedSlots(selectedSlots.filter(s => s !== slot));
     } else {
@@ -101,13 +91,7 @@ export default function ScheduleDay({ user, goBack }) {
     }
   };
 
-  /* ================= SAVE ================= */
-  const saveSchedule = async () => {
-
-    if (!scheduleDate) {
-      showPopup("Select schedule date", "error");
-      return;
-    }
+  const confirmSlots = async () => {
 
     if (selectedSlots.length === 0) {
       showPopup("Select at least one slot", "error");
@@ -115,79 +99,49 @@ export default function ScheduleDay({ user, goBack }) {
     }
 
     try {
-      setLoading(true);
+      await fetch(`${API}/doctor/schedule`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          scheduleDate,
+          loginTime,
+          logoutTime,
+          duration,
+          selectedSlots
+        }),
+      });
 
-      const res = await fetch(
-        `${API}/doctor/schedule`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            scheduleDate,
-            loginTime,
-            logoutTime,
-            duration,
-            selectedSlots
-          }),
-        }
-      );
-
-      const text = await res.text();
-
-      if (!res.ok) {
-        showPopup(text, "error");
-      } else {
-        showPopup("Schedule saved successfully ✅", "success");
-        setSelectedSlots([]);
-        setSlots([]);
-      }
+      showPopup("Schedule Saved Successfully ✅", "success");
+      setSlots([]);
+      setSelectedSlots([]);
 
     } catch {
-      showPopup("Server error", "error");
-    } finally {
-      setLoading(false);
+      showPopup("Something went wrong", "error");
     }
   };
 
   return (
-    <div className="schedule-page">
+    <div className="schedule-container">
 
+      {/* ✅ CUSTOM POPUP */}
       {popup && (
-        <div className={`auth-popup ${popup.type} ${fadeOut ? "fade-out" : ""}`}>
-          <div className="popup-icon">
-            {popup.type === "success" && "✓"}
-            {popup.type === "error" && "✕"}
-            {popup.type === "cancel" && "⚠"}
-          </div>
-          <div className="popup-text">
-            {popup.message}
-          </div>
+        <div className={`custom-popup ${popup.type} ${fadeOut ? "fade-out" : ""}`}>
+          {popup.message}
         </div>
       )}
 
-      <div className="schedule-card">
+      <button className="back-global" onClick={goBack}>
+        ← Back
+      </button>
 
-        {goBack && (
-          <button
-            className="back-btn"
-            onClick={() => {
-              showPopup("Action Cancelled", "cancel");
-              setTimeout(() => goBack(), 800);
-            }}
-          >
-            ← Back
-          </button>
-        )}
+      <div className="schedule-left">
 
-        <h1>Schedule Next 2 Days</h1>
+        <h2>Schedule Next 2 Days</h2>
 
         <div className="input-group">
           <label>Select Date</label>
-          <select
-            value={scheduleDate}
-            onChange={(e) => setScheduleDate(e.target.value)}
-          >
+          <select value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)}>
             <option value="">-- Select Date --</option>
             {allowedDates.map(date => (
               <option key={date} value={date}>
@@ -199,28 +153,17 @@ export default function ScheduleDay({ user, goBack }) {
 
         <div className="input-group">
           <label>Login Time</label>
-          <input
-            type="time"
-            value={loginTime}
-            onChange={(e) => setLoginTime(e.target.value)}
-          />
+          <input type="time" value={loginTime} onChange={(e) => setLoginTime(e.target.value)} />
         </div>
 
         <div className="input-group">
           <label>Logout Time</label>
-          <input
-            type="time"
-            value={logoutTime}
-            onChange={(e) => setLogoutTime(e.target.value)}
-          />
+          <input type="time" value={logoutTime} onChange={(e) => setLogoutTime(e.target.value)} />
         </div>
 
         <div className="input-group">
           <label>Duration</label>
-          <select
-            value={duration}
-            onChange={(e) => setDuration(Number(e.target.value))}
-          >
+          <select value={duration} onChange={(e) => setDuration(Number(e.target.value))}>
             <option value={10}>10 Minutes</option>
             <option value={20}>20 Minutes</option>
             <option value={30}>30 Minutes</option>
@@ -231,9 +174,18 @@ export default function ScheduleDay({ user, goBack }) {
           Generate Slots
         </button>
 
-        {slots.length > 0 && (
-          <>
-            <h3>Click to Select Slots</h3>
+      </div>
+
+      <div className="schedule-right">
+
+        {slots.length === 0 ? (
+          <div className="placeholder-card">
+            <h3>Enter date and times to get slots</h3>
+          </div>
+        ) : (
+          <div className="slots-card">
+
+            <h3>Select Slots</h3>
 
             <div className="slots-grid">
               {slots.map((slot, index) => (
@@ -246,18 +198,16 @@ export default function ScheduleDay({ user, goBack }) {
                 </div>
               ))}
             </div>
-          </>
+
+            <button className="confirm-btn" onClick={confirmSlots}>
+              Confirm Slots
+            </button>
+
+          </div>
         )}
 
-        <button
-          className="save-btn"
-          onClick={saveSchedule}
-          disabled={loading}
-        >
-          {loading ? "Saving..." : "Save Schedule"}
-        </button>
-
       </div>
+
     </div>
   );
 }
