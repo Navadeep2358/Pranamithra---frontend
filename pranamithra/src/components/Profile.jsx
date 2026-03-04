@@ -4,7 +4,7 @@ import "./Profile.css";
 /* ===== LOCALHOST BACKEND ===== */
 const API = "http://localhost:3000";
 
-export default function Profile({ goBack }) {
+export default function Profile({ goBack, setActionLoading }) {
 
   const [data, setData] = useState({});
   const [editMode, setEditMode] = useState(false);
@@ -60,6 +60,8 @@ export default function Profile({ goBack }) {
 
   const saveProfile = async () => {
 
+    setActionLoading(true);
+
     try {
 
       if (data.role === "customer") {
@@ -98,11 +100,18 @@ export default function Profile({ goBack }) {
     } catch {
       showPopup("Profile Update Failed", "error");
     }
+
+    setTimeout(() => {
+  setActionLoading(false);
+}, 3000);
   };
+
 
   /* ================= CHANGE PASSWORD ================= */
 
   const changePassword = async () => {
+
+    setActionLoading(true);
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       showPopup("New passwords do not match", "error");
@@ -142,6 +151,10 @@ export default function Profile({ goBack }) {
     } catch {
       showPopup("Server Error", "error");
     }
+
+    setTimeout(() => {
+  setActionLoading(false);
+}, 3000);
   };
 
   return (
