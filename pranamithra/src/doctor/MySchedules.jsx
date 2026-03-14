@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import "./MySchedules.css";
 
 /* ===== LOCALHOST BACKEND ===== */
-const API = "http://localhost:3000";
+const API = "https://pranamithra-backend-aakk.onrender.com";
 
 export default function MySchedules({ user, goBack }) {
 

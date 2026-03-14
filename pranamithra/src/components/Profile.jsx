@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./Profile.css";
 
 /* ===== LOCALHOST BACKEND ===== */
-const API = "http://localhost:3000";
+const API = "https://pranamithra-backend-aakk.onrender.com";
 
 export default function Profile({ goBack, setActionLoading }) {
 

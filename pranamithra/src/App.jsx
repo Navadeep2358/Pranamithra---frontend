@@ -24,7 +24,7 @@ import HeartLoader from "./components/HeartLoader";
 
 import "./App.css";
 
-const API = "http://localhost:3000";
+const API = "https://pranamithra-backend-aakk.onrender.com";
 
 export default function App() {
 
@@ -61,27 +61,7 @@ export default function App() {
 
   }, []);
 
-  /* ================= BOT NAVIGATION ================= */
 
-  useEffect(() => {
-
-    const handleGoToAppointments = () => {
-      navigateDoctor("appointments");
-    };
-
-    window.addEventListener(
-      "go-to-doctor-appointments",
-      handleGoToAppointments
-    );
-
-    return () => {
-      window.removeEventListener(
-        "go-to-doctor-appointments",
-        handleGoToAppointments
-      );
-    };
-
-  }, []);
 
   /* ================= SESSION CHECK ================= */
 
@@ -354,9 +334,10 @@ export default function App() {
           {doctorPage === "schedule" && (
 
             <ScheduleDay
-              user={user}
-              goBack={() => window.history.back()}
-            />
+  user={user}
+  goBack={() => window.history.back()}
+  setActionLoading={setActionLoading}
+/>
 
           )}
 

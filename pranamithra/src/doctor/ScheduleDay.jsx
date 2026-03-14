@@ -1,9 +1,9 @@
 import { useState } from "react";
 import "./ScheduleDay.css";
 
-const API = "http://localhost:3000";
+const API = "https://pranamithra-backend-aakk.onrender.com";
 
-export default function ScheduleDay({ goBack }) {
+export default function ScheduleDay({ goBack, setActionLoading }) {
 
   const [scheduleDate, setScheduleDate] = useState("");
   const [loginTime, setLoginTime] = useState("");
@@ -92,6 +92,7 @@ export default function ScheduleDay({ goBack }) {
   };
 
   const confirmSlots = async () => {
+    setActionLoading(true);
 
     if (selectedSlots.length === 0) {
       showPopup("Select at least one slot", "error");
@@ -119,6 +120,11 @@ export default function ScheduleDay({ goBack }) {
     } catch {
       showPopup("Something went wrong", "error");
     }
+
+    setTimeout(() => {
+  setActionLoading(false);
+}, 3000);
+
   };
 
   return (

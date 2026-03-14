@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./AppointmentPage.css";
 
 /* ===== LOCALHOST BACKEND ===== */
-const API = "http://localhost:3000";
+const API = "https://pranamithra-backend-aakk.onrender.com";
 
 export default function AppointmentPage({ doctorId, goBack }) {
 
@@ -82,6 +82,8 @@ export default function AppointmentPage({ doctorId, goBack }) {
   };
 
   const displayDate = (d) => d.toDateString();
+
+  
 
   /* ================= FETCH SLOTS ================= */
   useEffect(() => {

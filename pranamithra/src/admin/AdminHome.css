@@ -332,3 +332,65 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+/* QUERY TABLE */
+
+.query-row{
+    transition: all 0.3s ease;
+}
+
+.query-row:hover{
+    transform: scale(1.01);
+    background:#f4f6ff;
+}
+
+/* NAME */
+
+.query-name{
+    font-weight:600;
+    color:#2c3e50;
+}
+
+/* MESSAGE */
+
+.query-message{
+    color:#555;
+}
+
+/* BUTTON */
+
+.read-btn{
+
+    background:linear-gradient(135deg,#6c63ff,#4a90e2);
+    border:none;
+    padding:8px 16px;
+    border-radius:8px;
+    color:white;
+    font-size:13px;
+    cursor:pointer;
+    transition:all .3s ease;
+}
+
+.read-btn:hover{
+
+    transform:translateY(-2px);
+    box-shadow:0 6px 12px rgba(0,0,0,.15);
+
+    .query-row{
+
+animation: fadeSlide .4s ease;
+}
+
+@keyframes fadeSlide{
+
+from{
+opacity:0;
+transform:translateY(10px);
+}
+
+to{
+opacity:1;
+transform:translateY(0);
+}
+
+}
+}

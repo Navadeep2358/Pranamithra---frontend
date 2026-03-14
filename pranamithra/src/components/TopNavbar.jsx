@@ -1,7 +1,7 @@
 import "./TopNavbar.css";
 
 /* ===== LOCALHOST BACKEND ===== */
-const API = "http://localhost:3000";
+const API = "https://pranamithra-backend-aakk.onrender.com";
 
 export default function TopNavbar({ onMenu, onLogin, onRegister, user }) {
   return (

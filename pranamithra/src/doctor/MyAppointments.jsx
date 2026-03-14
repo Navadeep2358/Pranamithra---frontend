@@ -3,7 +3,7 @@ import axios from "axios";
 import "./MyAppointments.css";
 
 /* ===== LOCALHOST BACKEND ===== */
-const API = "http://localhost:3000";
+const API = "https://pranamithra-backend-aakk.onrender.com";
 
 export default function MyAppointments({ goBack }) {
 

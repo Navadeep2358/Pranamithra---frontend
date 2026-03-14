@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./AdminHome.css";
 
 /* ===== LOCALHOST BACKEND ===== */
-const API = "http://localhost:3000";
+const API = "https://pranamithra-backend-aakk.onrender.com";
 
 export default function AdminHome() {
   const [page, setPage] = useState(
@@ -50,6 +50,16 @@ export default function AdminHome() {
         .then((r) => r.json())
         .then(setDbData);
     }
+
+    /* ===== LOAD QUERIES ===== */
+    if (page === "queries") {
+      fetch(`${API}/admin/queries`, {
+        credentials: "include",
+      })
+        .then((r) => r.json())
+        .then(setDbData);
+    }
+
   }, [page]);
 
   /* ================= LOCK SCROLL WHEN MODAL ================= */
@@ -71,6 +81,7 @@ export default function AdminHome() {
 
   return (
     <div className="admin-container">
+
       <div className="admin-hero">
         <div className="admin-hero-text">
           <div className="welcome-text">WELCOME</div>
@@ -78,21 +89,30 @@ export default function AdminHome() {
         </div>
       </div>
 
+      {/* ================= HOME ================= */}
+
       {page === "home" && (
         <>
           <h3 className="services-heading">Services</h3>
 
           <div className="services-grid">
+
             <div className="service-box" onClick={() => changePage("verify")}>
               Verify Doctor
             </div>
+
             <div className="service-box" onClick={() => changePage("doctors")}>
               Doctor Database
             </div>
+
             <div className="service-box" onClick={() => changePage("customers")}>
               Customer Database
             </div>
-            <div className="service-box">Chatbot Queries</div>
+
+            <div className="service-box" onClick={() => changePage("queries")}>
+              Chatbot Queries
+            </div>
+
           </div>
 
           <div className="feedback-box">
@@ -101,8 +121,11 @@ export default function AdminHome() {
         </>
       )}
 
+      {/* ================= VERIFY DOCTORS ================= */}
+
       {page === "verify" && (
         <div className="verify-page">
+
           <div className="verify-header">
             <h1>Doctors Under Verification</h1>
             <button onClick={() => changePage("home")}>← Back</button>
@@ -110,31 +133,39 @@ export default function AdminHome() {
 
           {pendingDoctors.map((doc) => (
             <div key={doc.id} className="verify-card">
+
               <span>{doc.full_name}</span>
+
               <button
                 onClick={async () => {
                   const res = await fetch(
                     `${API}/admin/doctors/${doc.id}`,
                     { credentials: "include" }
                   );
+
                   setSelectedDoctor(await res.json());
                 }}
               >
                 View Details
               </button>
+
             </div>
           ))}
         </div>
       )}
 
+      {/* ================= DOCTOR DATABASE ================= */}
+
       {page === "doctors" && (
         <div className="db-page">
+
           <div className="verify-header">
             <h1>Doctor Database</h1>
             <button onClick={() => changePage("home")}>← Back</button>
           </div>
 
           <div className="db-controls">
+
             <input
               className="db-search"
               placeholder="Search doctor / hospital / specialization"
@@ -150,6 +181,7 @@ export default function AdminHome() {
               <option value="hospital_name">Hospital</option>
               <option value="specialization">Specialization</option>
             </select>
+
           </div>
 
           <table className="db-table">
@@ -165,15 +197,19 @@ export default function AdminHome() {
                 <th>Hospital Image</th>
               </tr>
             </thead>
+
             <tbody>
+
               {filteredData.map((d) => (
                 <tr key={d.id}>
+
                   <td>{d.full_name}</td>
                   <td>{d.email}</td>
                   <td>{d.phone}</td>
                   <td>{d.hospital_name}</td>
                   <td>{d.specialization}</td>
                   <td>{d.status}</td>
+
                   <td>
                     <button
                       onClick={() =>
@@ -183,6 +219,7 @@ export default function AdminHome() {
                       View
                     </button>
                   </td>
+
                   <td>
                     <button
                       onClick={() =>
@@ -192,21 +229,28 @@ export default function AdminHome() {
                       View
                     </button>
                   </td>
+
                 </tr>
               ))}
+
             </tbody>
           </table>
+
         </div>
       )}
 
+      {/* ================= CUSTOMER DATABASE ================= */}
+
       {page === "customers" && (
         <div className="db-page">
+
           <div className="verify-header">
             <h1>Customer Database</h1>
             <button onClick={() => changePage("home")}>← Back</button>
           </div>
 
           <div className="db-controls">
+
             <input
               className="db-search"
               placeholder="Search customer / address"
@@ -222,6 +266,7 @@ export default function AdminHome() {
               <option value="age">Age</option>
               <option value="gender">Gender</option>
             </select>
+
           </div>
 
           <table className="db-table">
@@ -235,25 +280,126 @@ export default function AdminHome() {
                 <th>Address</th>
               </tr>
             </thead>
+
             <tbody>
+
               {filteredData.map((c) => (
                 <tr key={c.id}>
+
                   <td>{c.full_name}</td>
                   <td>{c.email}</td>
                   <td>{c.phone}</td>
                   <td>{c.age}</td>
                   <td>{c.gender}</td>
                   <td>{c.address}</td>
+
                 </tr>
               ))}
+
             </tbody>
           </table>
+
         </div>
       )}
 
+      {/* ================= QUERIES PAGE ================= */}
+
+      {page === "queries" && (
+        <div className="db-page">
+
+          <div className="verify-header">
+            <h1>Chatbot Queries</h1>
+            <button onClick={() => changePage("home")}>← Back</button>
+          </div>
+
+          <h2>Doctor Queries</h2>
+
+          <table className="db-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Message</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {dbData
+                .filter((q) => q.role === "doctor")
+                .map((q) => (
+                  <tr key={q.id}>
+
+                    <td>{q.full_name}</td>
+                    <td>{q.message}</td>
+
+                    <td>
+                      <button
+                        onClick={() =>
+                          setDbData((prev) =>
+                            prev.filter((item) => item.id !== q.id)
+                          )
+                        }
+                      >
+                        Mark as Read
+                      </button>
+                    </td>
+
+                  </tr>
+                ))}
+
+            </tbody>
+          </table>
+
+          <h2>Customer Queries</h2>
+
+          <table className="db-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Message</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {dbData
+                .filter((q) => q.role === "customer")
+                .map((q) => (
+                  <tr key={q.id}>
+
+                    <td>{q.full_name}</td>
+                    <td>{q.message}</td>
+
+                    <td>
+                      <button
+                        onClick={() =>
+                          setDbData((prev) =>
+                            prev.filter((item) => item.id !== q.id)
+                          )
+                        }
+                      >
+                        Mark as Read
+                      </button>
+                    </td>
+
+                  </tr>
+                ))}
+
+            </tbody>
+          </table>
+
+        </div>
+      )}
+
+      {/* ================= MODAL ================= */}
+
       {selectedDoctor && (
         <div className="modal-overlay">
+
           <div className="modal-box animate-pop">
+
             <div className="modal-image-wrap">
               <img
                 src={`${API}/uploads/${selectedDoctor.doctor_image}`}
@@ -262,22 +408,27 @@ export default function AdminHome() {
             </div>
 
             <div className="modal-details">
+
               <div className="detail-row">
                 <span>Name</span>
                 <p>{selectedDoctor.full_name}</p>
               </div>
+
               <div className="detail-row">
                 <span>Email</span>
                 <p>{selectedDoctor.email}</p>
               </div>
+
               <div className="detail-row">
                 <span>Phone</span>
                 <p>{selectedDoctor.phone}</p>
               </div>
+
               <div className="detail-row">
                 <span>Hospital</span>
                 <p>{selectedDoctor.hospital_name}</p>
               </div>
+
               <div className="detail-row">
                 <span>Specialization</span>
                 <p>{selectedDoctor.specialization}</p>
@@ -294,9 +445,11 @@ export default function AdminHome() {
               >
                 View Hospital Image
               </button>
+
             </div>
 
             <div className="modal-actions">
+
               <button
                 className="verify-btn"
                 onClick={async () => {
@@ -309,6 +462,7 @@ export default function AdminHome() {
                   );
 
                   setSelectedDoctor(null);
+
                   setPendingDoctors((prev) =>
                     prev.filter((d) => d.id !== selectedDoctor.id)
                   );
@@ -329,6 +483,7 @@ export default function AdminHome() {
                   );
 
                   setSelectedDoctor(null);
+
                   setPendingDoctors((prev) =>
                     prev.filter((d) => d.id !== selectedDoctor.id)
                   );
@@ -336,14 +491,18 @@ export default function AdminHome() {
               >
                 Reject Doctor
               </button>
+
             </div>
 
             <button className="close-btn" onClick={() => setSelectedDoctor(null)}>
               Close
             </button>
+
           </div>
+
         </div>
       )}
+
     </div>
   );
 }
